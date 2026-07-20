@@ -64,7 +64,10 @@ INSERT INTO comptes (id, numero, nom, prenom, id_etat, solde, update_at) VALUES
 INSERT INTO comptes (id, numero, nom, prenom, id_etat, solde, update_at) VALUES
 (6, '0380000000', 'Rakoto', 'Ketaka', 1, 500000, '2024-01-15'),
 (7, '0340000000', 'Rasoa', 'Ramily', 1, 750000, '2024-01-16');
+(8, '0341111111', 'Be', 'Boss', 1, 750000, '2024-01-16');
 
+INSERT INTO comptes (id, numero, nom, prenom, id_etat, solde, update_at) VALUES
+(8, '0341111111', 'Be', 'Boss', 1, 100000, '2024-01-16');
 -- =========================================
 -- Transactions
 -- =========================================
