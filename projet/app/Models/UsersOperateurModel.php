@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class UsersOperateurModel extends Model
 {
-    protected $table            = 'users_operateur';
+    protected $table            = 'users_operateurs';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
@@ -20,20 +20,17 @@ class UsersOperateurModel extends Model
     protected array $casts = [];
     protected array $castHandlers = [];
 
-    // Dates
     protected $useTimestamps = false;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at';
 
-    // Validation
     protected $validationRules      = [];
     protected $validationMessages   = [];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 
-    // Callbacks
     protected $allowCallbacks = true;
     protected $beforeInsert   = [];
     protected $afterInsert    = [];
@@ -43,4 +40,19 @@ class UsersOperateurModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    /**
+     * Valide les identifiants d'un utilisateur opérateur
+     * Mot de passe en clair pour l'instant (todo: hash à ajouter plus tard)
+     */
+    public function validateLogin(string $username, string $password): ?array
+    {
+        $user = $this->where('username', $username)->first();
+
+        if ($user && $user['password'] === $password) {
+            return $user;
+        }
+
+        return null;
+    }
 }

@@ -3,20 +3,15 @@
 namespace App\Controllers\Operator;
 
 use App\Controllers\BaseController;
-use App\Services\FakeDataService;
+use App\Models\PrefixeModel;
 
 class PrefixController extends BaseController
 {
-    private $fakeDataService;
-
-    public function __construct()
-    {
-        $this->fakeDataService = new FakeDataService();
-    }
 
     public function index()
-    {
-        $prefixes = $this->fakeDataService->getPrefixes();
+    {   
+        $model = new PrefixeModel();
+        $prefixes = $model->findAll();
         return view('operator/prefix', ['prefixes' => $prefixes]);
     }
 

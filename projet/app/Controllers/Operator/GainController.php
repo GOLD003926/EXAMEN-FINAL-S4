@@ -3,45 +3,56 @@
 namespace App\Controllers\Operator;
 
 use App\Controllers\BaseController;
-use App\Services\FakeDataService;
+use App\Models\TransactionsModel;
+use App\Models\TypeOperationsModel;
 
 class GainController extends BaseController
 {
-    private $fakeDataService;
+    private TransactionsModel $transactionsModel;
+    private TypeOperationsModel $typeOperationsModel;
 
     public function __construct()
     {
-        $this->fakeDataService = new FakeDataService();
+        $this->transactionsModel   = new TransactionsModel();
+        $this->typeOperationsModel = new TypeOperationsModel();
     }
 
     public function index()
     {
-        $totalGain = $this->fakeDataService->getTotalGain();
-        $gainRetrait = $this->fakeDataService->getGainByType(2); // Type 2 = Retrait
-        $gainTransfert = $this->fakeDataService->getGainByType(3); // Type 3 = Transfert
-        $operations = $this->fakeDataService->getTypeOperations();
-        $transactions = $this->fakeDataService->getTransactions();
+        $dateDebut = $this->request->getGet('date_debut');
+        $dateFin   = $this->request->getGet('date_fin');
+
+        $totalGain     = $this->transactionsModel->getTotalGain($dateDebut, $dateFin);
+        $gainRetrait   = $this->transactionsModel->getGainByType(2, $dateDebut, $dateFin); // Type 2 = Retrait
+        $gainTransfert = $this->transactionsModel->getGainByType(3, $dateDebut, $dateFin); // Type 3 = Transfert
+        $operations    = $this->typeOperationsModel->findAll();
+        $transactions  = $this->transactionsModel->getTransactionsFiltrees($dateDebut, $dateFin);
 
         return view('operator/gain', [
-            'totalGain' => $totalGain,
-            'gainRetrait' => $gainRetrait,
+            'totalGain'     => $totalGain,
+            'gainRetrait'   => $gainRetrait,
             'gainTransfert' => $gainTransfert,
-            'operations' => $operations,
-            'transactions' => $transactions
+            'operations'    => $operations,
+            'transactions'  => $transactions,
+            'dateDebut'     => $dateDebut,
+            'dateFin'       => $dateFin,
         ]);
     }
 
     public function getGainStats()
     {
-        $totalGain = $this->fakeDataService->getTotalGain();
+        $dateDebut = $this->request->getGet('date_debut');
+        $dateFin   = $this->request->getGet('date_fin');
+
+        $totalGain = $this->transactionsModel->getTotalGain($dateDebut, $dateFin);
         $gainByType = [
-            'retrait' => $this->fakeDataService->getGainByType(2),
-            'transfert' => $this->fakeDataService->getGainByType(3),
+            'retrait'   => $this->transactionsModel->getGainByType(2, $dateDebut, $dateFin),
+            'transfert' => $this->transactionsModel->getGainByType(3, $dateDebut, $dateFin),
         ];
 
         return $this->response->setJSON([
-            'totalGain' => $totalGain,
-            'gainByType' => $gainByType
+            'totalGain'  => $totalGain,
+            'gainByType' => $gainByType,
         ]);
     }
 }

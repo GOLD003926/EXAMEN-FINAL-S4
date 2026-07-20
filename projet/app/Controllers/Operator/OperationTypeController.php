@@ -3,20 +3,15 @@
 namespace App\Controllers\Operator;
 
 use App\Controllers\BaseController;
-use App\Services\FakeDataService;
+use App\Models\TypeOperationsModel;
+use App\Models\FraisOperationsModel;
 
 class OperationTypeController extends BaseController
 {
-    private $fakeDataService;
-
-    public function __construct()
-    {
-        $this->fakeDataService = new FakeDataService();
-    }
-
     public function index()
     {
-        $operations = $this->fakeDataService->getTypeOperations();
+        $model = new TypeOperationsModel();
+        $operations = $model->findAll();
         return view('operator/operationType', ['operations' => $operations]);
     }
 
@@ -55,7 +50,8 @@ class OperationTypeController extends BaseController
 
     public function getFees($operationId)
     {
-        $allFees = $this->fakeDataService->getFraisOperations();
+        $model = new FraisOperationsModel();
+        $allFees = $model->findAll();
         $fees = array_filter($allFees, function($fee) use ($operationId) {
             return $fee['id_type_operation'] == $operationId;
         });

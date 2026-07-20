@@ -3,15 +3,24 @@
 namespace App\Controllers\Operator;
 
 use App\Controllers\BaseController;
-use App\Services\FakeDataService;
+use App\Models\ComptesModel;
+use App\Models\TransactionsModel;
+use App\Models\PrefixeModel;
+use App\Models\TypeOperationsModel;
 
 class DashboardController extends BaseController
 {
-    private $fakeDataService;
+    private ComptesModel $comptesModel;
+    private TransactionsModel $transactionsModel;
+    private PrefixeModel $prefixeModel;
+    private TypeOperationsModel $typeOperationsModel;
 
     public function __construct()
     {
-        $this->fakeDataService = new FakeDataService();
+        $this->comptesModel        = new ComptesModel();
+        $this->transactionsModel   = new TransactionsModel();
+        $this->prefixeModel        = new PrefixeModel();
+        $this->typeOperationsModel = new TypeOperationsModel();
     }
 
     public function index()
@@ -21,29 +30,23 @@ class DashboardController extends BaseController
             return redirect()->to('/');
         }
 
-        // Get statistics
-        $totalGain = $this->fakeDataService->getTotalGain();
-        $comptes = $this->fakeDataService->getComptes();
-        $transactions = $this->fakeDataService->getTransactions();
-        $prefixes = $this->fakeDataService->getPrefixes();
-        $operations = $this->fakeDataService->getTypeOperations();
-
-        // Calculate additional stats
-        $totalClients = count($comptes);
-        $totalTransactions = count($transactions);
-        $activeClients = count(array_filter($comptes, function($c) { return $c['id_etat'] == 1; }));
-        $totalSolde = array_sum(array_column($comptes, 'solde'));
+        $totalGain          = $this->transactionsModel->getTotalGain();
+        $totalClients       = $this->comptesModel->countTotal();
+        $activeClients      = $this->comptesModel->countActifs();
+        $totalTransactions  = $this->transactionsModel->countTotal();
+        $totalSolde         = $this->comptesModel->getSommeSoldes();
+        $recentTransactions = $this->transactionsModel->getRecentTransactions(5);
 
         return view('operator/dashboard', [
-            'admin_nom' => session('admin_nom'),
-            'admin_prenom' => session('admin_prenom'),
-            'admin_role' => session('admin_role'),
-            'totalGain' => $totalGain,
-            'totalClients' => $totalClients,
-            'activeClients' => $activeClients,
-            'totalTransactions' => $totalTransactions,
-            'totalSolde' => $totalSolde,
-            'recentTransactions' => array_slice($transactions, 0, 5)
+            'admin_nom'          => session('admin_nom'),
+            'admin_prenom'       => session('admin_prenom'),
+            'admin_role'         => session('admin_role'),
+            'totalGain'          => $totalGain,
+            'totalClients'       => $totalClients,
+            'activeClients'      => $activeClients,
+            'totalTransactions'  => $totalTransactions,
+            'totalSolde'         => $totalSolde,
+            'recentTransactions' => $recentTransactions,
         ]);
     }
 }

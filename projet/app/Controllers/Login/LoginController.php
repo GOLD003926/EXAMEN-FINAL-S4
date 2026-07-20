@@ -3,18 +3,18 @@
 namespace App\Controllers\Login;
 
 use App\Controllers\BaseController;
-use App\Services\FakeDataService;
+use App\Models\UsersOperateurModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use App\Models\PrefixeModel;
 use App\Models\ComptesModel;
 
 class LoginController extends BaseController
 {
-    private $fakeDataService;
+     private UsersOperateurModel $usersOperateurModel;
 
     public function __construct()
     {
-        $this->fakeDataService = new FakeDataService();
+        $this->usersOperateurModel = new UsersOperateurModel();
     }
 
     public function index()
@@ -63,23 +63,17 @@ class LoginController extends BaseController
             }
 
             // vérifier si existe dans la base de données
-            $utilisateurs = [
-                '0331234567',
-                '0377654321',
-            ];
-            if (!in_array($numero, $utilisateurs)) {
+            $comptes = $this->getAllNumero();
+            if (!in_array($numero, $comptes)) {
                 // enregistrer le numero dans la base de données
             }
-
-            // Si tout est ok, on crée la session client
+            // Si tout est ok, on crée la session
             session()->set('numero', $numero);
-            session()->set('user_type', 'client');
             return $this->response->setJSON([
                 'success' => true,
                 'message' => 'Connexion réussie',
                 'redirect_url' => base_url('/')
             ]);
-
 
         } elseif ($userType === 'admin') {
             // Validation pour admin
@@ -88,8 +82,8 @@ class LoginController extends BaseController
                     ->setJSON(['message' => 'Identifiant et mot de passe requis.']);
             }
 
-            // Validation contre les utilisateurs opérateur
-            $user = $this->fakeDataService->validateOperatorLogin($numero, $password);
+            // Validation contre les utilisateurs opérateur (via UsersOperateurModel)
+            $user = $this->usersOperateurModel->validateLogin($numero, $password);
 
             if (!$user) {
                 return $this->response->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED)
@@ -110,28 +104,17 @@ class LoginController extends BaseController
                 'redirect_url' => base_url('/operator/dashboard')
             ]);
         }
-
-        // verifier si existe dans la base de données 
-        $comptes = $this->getAllNumero();
-        if (!in_array($numero, $comptes)) {
-            // enregistrer le numero dans la base de données
-        }
-        // Si tout est ok, on crée la session
-        session()->set('numero', $numero);
-        return $this->response->setJSON([
-            'success' => true,
-            'message' => 'Connexion réussie',
-            'redirect_url' => base_url('/')
-        ]);
     }
 
-    function getAllNumero() {
+    function getAllNumero()
+    {
         $model = new ComptesModel();
         $numeros = $model->findAll();
         return array_column($numeros, 'numero');
     }
 
-    function getPrefixes() {
+    function getPrefixes()
+    {
         $model = new PrefixeModel();
         $prefixes = $model->findAll();
         return !empty($prefixes) ? array_column($prefixes, 'codes') : [];

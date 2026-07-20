@@ -51,3 +51,12 @@ CREATE TABLE transactions (
     FOREIGN KEY (id_compte) REFERENCES comptes(id),
     FOREIGN KEY (id_type_operation) REFERENCES type_operations(id)
 );
+
+CREATE TABLE users_operateurs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE,
+    password TEXT,
+    nom TEXT,
+    prenom TEXT,
+    role TEXT
+);
