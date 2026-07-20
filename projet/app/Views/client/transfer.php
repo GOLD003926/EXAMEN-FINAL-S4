@@ -297,7 +297,7 @@
             newRow.className = 'input-group mb-2 destinataire-row';
             newRow.innerHTML = `
                 <span class="input-group-text"><i class="bi bi-person"></i></span>
-                <input type="text" class="form-control destinataire-input" placeholder="033..." required>
+                <input type="text" class="form-control destinataire-input" placeholder="033..." pattern="\d{10}" required>
                 <button type="button" class="btn btn-outline-danger remove-destinataire">
                     <i class="bi bi-trash"></i>
                 </button>

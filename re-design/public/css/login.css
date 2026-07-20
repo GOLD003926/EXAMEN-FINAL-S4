@@ -1,0 +1,21 @@
+ .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .transition-view {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .scan-animation {
+            background: linear-gradient(90deg, transparent, rgba(0, 168, 150, 0.1), transparent);
+            background-size: 200% 100%;
+            animation: scan 3s infinite linear;
+        }
+        @keyframes scan {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }

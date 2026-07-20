@@ -48,6 +48,7 @@ class UsersOperateurModel extends Model
     public function validateLogin(string $username, string $password): ?array
     {
         $user = $this->where('username', $username)->first();
+        log_message('debug', '[USERSOPERATEURMODEL] Login Admin --> Username : ' . $username . ' et mot de passe: ' . $user['password']);
 
         if ($user && $user['password'] === $password) {
             return $user;

@@ -56,7 +56,7 @@ class LoginController extends BaseController
 
             if (!$prefixOk) {
                 return $this->response->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
-                    ->setJSON(['message' => 'Le numero mobile est invalide (prefixe incorrect).']);
+                    ->setJSON(['message' => 'Le numero mobile est invalide (opérateur pas pris en charge).']);
             }
 
             // Création automatique du compte si le numéro n'existe pas encore
@@ -74,7 +74,6 @@ class LoginController extends BaseController
                 ]);
             }
 
-            // Bug corrigé : user_type manquant, cassait la redirection sur index()
             session()->set('numero', $numero);
             session()->set('user_type', 'client');
 
@@ -89,12 +88,12 @@ class LoginController extends BaseController
                 return $this->response->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
                     ->setJSON(['message' => 'Identifiant et mot de passe requis.']);
             }
-
+            log_message('debug', '[LOGINCONTROLLER] Login Admin --> Email : ' . $numero . ' et mot de passe: ' . $password);
             $user = $this->usersOperateurModel->validateLogin($numero, $password);
 
             if (!$user) {
                 return $this->response->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED)
-                    ->setJSON(['message' => 'Identifiant ou mot de passe incorrect.']);
+                    ->setJSON(['message' => 'Identifiant ou mot de passe incorrect pour email=' . $numero . ' et mot de passe=' . $password . '.']);
             }
 
             session()->set('admin_id', $user['id']);
