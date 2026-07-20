@@ -19,7 +19,12 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="<?= base_url('/operator/prefixes') ?>">
+                        <a class="nav-link" href="<?= base_url('/operator/dashboard') ?>">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="<?= base_url('/operator/prefixes') ?>">
                             <i class="bi bi-hash"></i> Préfixes
                         </a>
                     </li>
@@ -36,6 +41,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="<?= base_url('/operator/comptes') ?>">
                             <i class="bi bi-people"></i> Comptes Clients
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?= base_url('/operator/operateurs') ?>">
+                            <i class="bi bi-building"></i> Opérateurs
                         </a>
                     </li>
                 </ul>
@@ -70,6 +80,7 @@
                                         <th>ID</th>
                                         <th>Code</th>
                                         <th>Description</th>
+                                        <th>Opérateur Associé</th>
                                         <th class="text-end">Actions</th>
                                     </tr>
                                 </thead>
@@ -79,8 +90,19 @@
                                         <td><?= $prefix['id'] ?></td>
                                         <td><span class="badge bg-primary"><?= $prefix['codes'] ?></span></td>
                                         <td><?= $prefix['descriptions'] ?></td>
+                                        <td>
+                                            <?php if(isset($prefix['operateur_nom'])): ?>
+                                                <?php if($prefix['est_interne'] == 1): ?>
+                                                    <span class="badge bg-success"><?= $prefix['operateur_nom'] ?></span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-warning"><?= $prefix['operateur_nom'] ?></span>
+                                                <?php endif; ?>
+                                            <?php else: ?>
+                                                <span class="badge bg-secondary">Non assigné</span>
+                                            <?php endif; ?>
+                                        </td>
                                         <td class="text-end">
-                                            <button class="btn btn-sm btn-outline-primary" onclick="editPrefix(<?= $prefix['id'] ?>)">
+                                            <button class="btn btn-sm btn-outline-primary" onclick="editPrefix(<?= htmlspecialchars(json_encode($prefix)) ?>)">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
                                             <button class="btn btn-sm btn-outline-danger" onclick="deletePrefix(<?= $prefix['id'] ?>)">
@@ -110,11 +132,24 @@
                     <form id="addPrefixForm">
                         <div class="mb-3">
                             <label for="prefixCode" class="form-label">Code du préfixe</label>
-                            <input type="text" class="form-control" id="prefixCode" placeholder="Ex: 034" required>
+                            <input type="text" class="form-control" id="prefixCode" name="codes" placeholder="Ex: 034" required>
                         </div>
                         <div class="mb-3">
                             <label for="prefixDesc" class="form-label">Description</label>
-                            <input type="text" class="form-control" id="prefixDesc" placeholder="Ex: Airtel" required>
+                            <input type="text" class="form-control" id="prefixDesc" name="descriptions" placeholder="Ex: Airtel" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="prefixOperateur" class="form-label">Opérateur Associé</label>
+                            <select class="form-select" id="prefixOperateur" name="id_operateur" required>
+                                <option value="">Sélectionner un opérateur</option>
+                                <?php if(isset($operateurs)): ?>
+                                    <?php foreach($operateurs as $operateur): ?>
+                                        <option value="<?= $operateur['id'] ?>">
+                                            <?= $operateur['nom'] ?> (<?= $operateur['est_interne'] == 1 ? 'Interne' : 'Externe' ?>)
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
                         </div>
                     </form>
                 </div>
@@ -126,13 +161,56 @@
         </div>
     </div>
 
+    <!-- Edit Prefix Modal -->
+    <div class="modal fade" id="editPrefixModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifier le Préfixe</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editPrefixForm">
+                        <input type="hidden" id="editId" name="id">
+                        <div class="mb-3">
+                            <label for="editCode" class="form-label">Code du préfixe</label>
+                            <input type="text" class="form-control" id="editCode" name="codes" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDesc" class="form-label">Description</label>
+                            <input type="text" class="form-control" id="editDesc" name="descriptions" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editOperateur" class="form-label">Opérateur Associé</label>
+                            <select class="form-select" id="editOperateur" name="id_operateur" required>
+                                <option value="">Sélectionner un opérateur</option>
+                                <?php if(isset($operateurs)): ?>
+                                    <?php foreach($operateurs as $operateur): ?>
+                                        <option value="<?= $operateur['id'] ?>">
+                                            <?= $operateur['nom'] ?> (<?= $operateur['est_interne'] == 1 ? 'Interne' : 'Externe' ?>)
+                                        </option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" onclick="updatePrefix()">Modifier</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="<?= base_url('bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
     <script>
         function addPrefix() {
-            const code = document.getElementById('prefixCode').value;
-            const desc = document.getElementById('prefixDesc').value;
+            const form = document.getElementById('addPrefixForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
             
-            if (!code || !desc) {
+            if (!data.codes || !data.descriptions || !data.id_operateur) {
                 alert('Veuillez remplir tous les champs');
                 return;
             }
@@ -140,7 +218,7 @@
             fetch('<?= base_url('/operator/prefixes/create') ?>', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ codes: code, descriptions: desc })
+                body: JSON.stringify(data)
             })
             .then(response => response.json())
             .then(data => {
@@ -153,8 +231,39 @@
             });
         }
 
-        function editPrefix(id) {
-            alert('Fonctionnalité de modification (ID: ' + id + ')');
+        function editPrefix(prefix) {
+            document.getElementById('editId').value = prefix.id;
+            document.getElementById('editCode').value = prefix.codes;
+            document.getElementById('editDesc').value = prefix.descriptions;
+            document.getElementById('editOperateur').value = prefix.id_operateur || '';
+            
+            new bootstrap.Modal(document.getElementById('editPrefixModal')).show();
+        }
+
+        function updatePrefix() {
+            const form = document.getElementById('editPrefixForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            
+            if (!data.codes || !data.descriptions || !data.id_operateur) {
+                alert('Veuillez remplir tous les champs');
+                return;
+            }
+
+            fetch('<?= base_url('/operator/prefixes/update') ?>', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Préfixe modifié avec succès');
+                    location.reload();
+                } else {
+                    alert('Erreur: ' + data.message);
+                }
+            });
         }
 
         function deletePrefix(id) {

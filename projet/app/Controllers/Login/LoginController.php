@@ -122,7 +122,7 @@ class LoginController extends BaseController
     function getPrefixes()
     {
         $model = new PrefixeModel();
-        $prefixes = $model->findAll();
+        $prefixes = $model->getPrefixesInternes();
         return !empty($prefixes) ? array_column($prefixes, 'codes') : [];
     }
 }
