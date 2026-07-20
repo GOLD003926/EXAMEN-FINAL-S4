@@ -29,6 +29,11 @@
             <span class="material-symbols-outlined <?= $currentPage === 'comptes' ? 'icon-fill' : '' ?>">manage_accounts</span>
             Comptes
         </a>
+
+        <a class="<?= $currentPage === 'operateurs' ? 'text-primary font-semibold' : 'text-on-surface-variant' ?> font-label-md flex items-center gap-2 relative <?= $currentPage === 'operateurs' ? 'after:content-[\'\'] after:absolute after:bottom-[-28px] after:left-0 after:w-full after:h-1 after:bg-primary after:rounded-t-full' : '' ?> hover:text-primary transition-colors" href="<?= base_url('/operator/operateurs') ?>">
+            <span class="material-symbols-outlined <?= $currentPage === 'operateurs' ? 'icon-fill' : '' ?>">business</span>
+            Opérateurs
+        </a>
     </nav>
     <div class="flex items-center gap-4">
         <a href="<?= base_url('/logout') ?>" class="p-2 text-primary hover:bg-surface-container-low transition-colors rounded-full主动:opacity-80">

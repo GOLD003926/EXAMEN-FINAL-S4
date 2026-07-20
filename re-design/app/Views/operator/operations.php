@@ -6,7 +6,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Types d'Opérations - Mobile Money</title>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Lexend:wght@500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Lexend:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <script src="<?= base_url('tailwind/common.js') ?>"></script>
     <link rel="stylesheet" href="<?= base_url('css/common.css') ?>">
@@ -130,18 +130,96 @@
 
 <!-- Fees Modal -->
 <div id="feesModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 backdrop-blur-sm">
-<div class="layer-2 rounded-xl max-w-2xl w-full mx-4 overflow-hidden">
+<div class="layer-2 rounded-xl max-w-3xl w-full mx-4 overflow-hidden">
 <div class="bg-surface-container px-lg py-md border-b border-outline-variant/30 flex justify-between items-center">
 <h3 class="font-headline-md text-headline-md text-on-surface">Grille des Frais</h3>
 <button id="closeFeesModal" class="text-on-surface-variant hover:text-on-surface transition-colors">
 <span class="material-symbols-outlined">close</span>
 </button>
 </div>
-<div class="p-lg overflow-x-auto">
-<div id="feesContent"></div>
+<div class="p-lg">
+<div class="flex justify-between items-center mb-md">
+<p class="font-body-sm text-body-sm text-on-surface-variant">Gérez les barèmes de frais par tranche de montant</p>
+<button id="addFeeBtn" class="bg-primary-container text-on-primary font-label-sm text-label-sm px-md py-sm rounded-lg flex items-center gap-sm hover:shadow-lg transition-all">
+<span class="material-symbols-outlined text-[18px]">add</span>
+Ajouter une tranche
+</button>
+</div>
+<div id="feesContent" class="overflow-x-auto"></div>
 </div>
 <div class="px-lg py-md bg-surface-container-low border-t border-outline-variant/30 flex justify-end">
 <button id="closeFeesBtn" class="px-lg py-md text-on-surface-variant hover:text-on-surface transition-colors">Fermer</button>
+</div>
+</div>
+</div>
+
+<!-- Edit Operation Modal -->
+<div id="editOperationModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+<div class="layer-2 rounded-xl max-w-md w-full mx-4 overflow-hidden">
+<div class="bg-surface-container px-lg py-md border-b border-outline-variant/30 flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-on-surface">Modifier le Type d'Opération</h3>
+<button id="closeEditModal" class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-lg">
+<form id="editOperationForm">
+<input type="hidden" id="editOpId">
+<div class="mb-md">
+<label for="editOpCode" class="block font-label-md text-label-md text-on-surface mb-sm">Code</label>
+<input type="text" class="w-full px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" id="editOpCode" required>
+</div>
+<div class="mb-md">
+<label for="editOpLibelle" class="block font-label-md text-label-md text-on-surface mb-sm">Libellé</label>
+<input type="text" class="w-full px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" id="editOpLibelle" required>
+</div>
+<div class="mb-md">
+<label for="editOpDesc" class="block font-label-md text-label-md text-on-surface mb-sm">Description</label>
+<textarea class="w-full px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" id="editOpDesc" rows="2" required></textarea>
+</div>
+</form>
+</div>
+<div class="px-lg py-md bg-surface-container-low border-t border-outline-variant/30 flex justify-end gap-sm">
+<button id="cancelEdit" class="px-lg py-md text-on-surface-variant hover:text-on-surface transition-colors">Annuler</button>
+<button id="submitEdit" class="px-lg py-md bg-primary-container text-on-primary rounded-lg hover:shadow-lg transition-all">Modifier</button>
+</div>
+</div>
+</div>
+
+<!-- Add/Edit Fee Modal -->
+<div id="feeModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+<div class="layer-2 rounded-xl max-w-md w-full mx-4 overflow-hidden">
+<div class="bg-surface-container px-lg py-md border-b border-outline-variant/30 flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-on-surface" id="feeModalTitle">Ajouter une Tranche</h3>
+<button id="closeFeeModal" class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-lg">
+<form id="feeForm">
+<input type="hidden" id="feeId">
+<input type="hidden" id="feeOperationId">
+<div class="mb-md">
+<label for="feeMin" class="block font-label-md text-label-md text-on-surface mb-sm">Montant Min (Ar)</label>
+<input type="number" class="w-full px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" id="feeMin" required>
+</div>
+<div class="mb-md">
+<label for="feeMax" class="block font-label-md text-label-md text-on-surface mb-sm">Montant Max (Ar)</label>
+<input type="number" class="w-full px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" id="feeMax" required>
+</div>
+<div class="mb-md">
+<label for="feeAmount" class="block font-label-md text-label-md text-on-surface mb-sm">Frais (Ar)</label>
+<input type="number" class="w-full px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" id="feeAmount" required>
+</div>
+<div class="mb-md">
+<label for="feeDesc" class="block font-label-md text-label-md text-on-surface mb-sm">Description</label>
+<textarea class="w-full px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" id="feeDesc" rows="2"></textarea>
+</div>
+</form>
+</div>
+<div class="px-lg py-md bg-surface-container-low border-t border-outline-variant/30 flex justify-end gap-sm">
+<button id="cancelFee" class="px-lg py-md text-on-surface-variant hover:text-on-surface transition-colors">Annuler</button>
+<button id="submitFee" class="px-lg py-md bg-primary-container text-on-primary rounded-lg hover:shadow-lg transition-all">Enregistrer</button>
 </div>
 </div>
 </div>
@@ -150,8 +228,12 @@
 // Définir les URLs pour le JS
 window.API_URLS = {
     create: '<?= base_url('/operator/operations/create') ?>',
+    update: '<?= base_url('/operator/operations/update') ?>',
+    delete: '<?= base_url('/operator/operations/delete') ?>',
     fees: '<?= base_url('/operator/operations/fees/') ?>',
-    delete: '<?= base_url('/operator/operations/delete') ?>'
+    createFee: '<?= base_url('/operator/operations/createFee') ?>',
+    updateFee: '<?= base_url('/operator/operations/updateFee') ?>',
+    deleteFee: '<?= base_url('/operator/operations/deleteFee') ?>'
 };
 </script>
 <script src="<?= base_url('js/operations.js') ?>"></script>

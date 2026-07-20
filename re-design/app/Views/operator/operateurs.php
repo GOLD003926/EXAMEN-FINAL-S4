@@ -1,299 +1,182 @@
+<?php $currentPage = 'operateurs'; ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html class="light" lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Opérateurs</title>
-    <link rel="stylesheet" href="<?= base_url('bootstrap/css/bootstrap.min.css') ?>">
-    <link rel="stylesheet" href="<?= base_url('bootstrap/icons/bootstrap-icons.min.css') ?>">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Gestion des Opérateurs - Mobile Money</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Lexend:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="<?= base_url('tailwind/common.js') ?>"></script>
+    <link rel="stylesheet" href="<?= base_url('css/common.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('css/operateurs.css') ?>">
 </head>
-<body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="<?= base_url('/operator/dashboard') ?>">
-                <i class="bi bi-gear-fill"></i> Panel Opérateur
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+<body class="bg-background text-on-background min-h-screen pb-[80px] md:pb-0 pt-[64px] md:pt-[80px]">
+<?php include 'navbar.php'; ?>
+<!-- Main Content -->
+<main class="max-w-[1280px] mx-auto px-container-margin py-lg flex flex-col gap-lg">
+<!-- Page Header -->
+<section class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-md">
+<div>
+<h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">Gestion des Opérateurs</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Configuration et gestion des opérateurs de téléphonie.</p>
+</div>
+<button id="addOperateurBtn" class="px-lg py-md bg-primary-container text-on-primary rounded-lg hover:shadow-lg transition-all font-label-md text-label-sm flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                Ajouter un Opérateur
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= base_url('/operator/dashboard') ?>">
-                            <i class="bi bi-speedometer2"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= base_url('/operator/prefixes') ?>">
-                            <i class="bi bi-hash"></i> Préfixes
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= base_url('/operator/operations') ?>">
-                            <i class="bi bi-list-check"></i> Types d'Opérations
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= base_url('/operator/gains') ?>">
-                            <i class="bi bi-graph-up"></i> Gains
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= base_url('/operator/comptes') ?>">
-                            <i class="bi bi-people"></i> Comptes Clients
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="<?= base_url('/operator/operateurs') ?>">
-                            <i class="bi bi-building"></i> Opérateurs
-                        </a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= base_url('/logout') ?>">
-                            <i class="bi bi-box-arrow-right"></i> Déconnexion
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>
-                <i class="bi bi-building"></i> Gestion des Opérateurs
-            </h2>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addOperateurModal">
-                <i class="bi bi-plus-lg"></i> Ajouter un Opérateur
-            </button>
-        </div>
-
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>ID</th>
-                                <th>Nom</th>
-                                <th>Code</th>
-                                <th>Type</th>
-                                <th>Taux Commission</th>
-                                <th>Description</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach($operateurs as $operateur): ?>
-                            <tr>
-                                <td><?= $operateur['id'] ?></td>
-                                <td><?= $operateur['nom'] ?></td>
-                                <td><span class="badge bg-secondary"><?= $operateur['code'] ?></span></td>
-                                <td>
-                                    <?php if($operateur['est_interne'] == 1): ?>
-                                        <span class="badge bg-success">Interne (Nous)</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-warning">Externe</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td><?= number_format($operateur['taux_commission'], 2, ',', ' ') ?>%</td>
-                                <td><?= $operateur['descriptions'] ?? '-' ?></td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary" onclick="editOperateur(<?= htmlspecialchars(json_encode($operateur)) ?>)">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <?php if($operateur['est_interne'] != 1): ?>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteOperateur(<?= $operateur['id'] ?>)">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Ajout Opérateur -->
-    <div class="modal fade" id="addOperateurModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Ajouter un Opérateur</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addOperateurForm">
-                        <div class="mb-3">
-                            <label class="form-label">Nom de l'opérateur</label>
-                            <input type="text" class="form-control" name="nom" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Code</label>
-                            <input type="text" class="form-control" name="code" required placeholder="Ex: TEL, ORA">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Type</label>
-                            <select class="form-select" name="est_interne" required>
-                                <option value="0">Externe</option>
-                                <option value="1">Interne (Nous)</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Taux de commission (%)</label>
-                            <input type="number" step="0.01" class="form-control" name="taux_commission" required placeholder="Ex: 5.5">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" name="descriptions" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="button" class="btn btn-primary" onclick="createOperateur()">Ajouter</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Modification Opérateur -->
-    <div class="modal fade" id="editOperateurModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Modifier l'Opérateur</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editOperateurForm">
-                        <input type="hidden" name="id" id="editId">
-                        <div class="mb-3">
-                            <label class="form-label">Nom de l'opérateur</label>
-                            <input type="text" class="form-control" name="nom" id="editNom" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Code</label>
-                            <input type="text" class="form-control" name="code" id="editCode" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Type</label>
-                            <select class="form-select" name="est_interne" id="editEstInterne" required>
-                                <option value="0">Externe</option>
-                                <option value="1">Interne (Nous)</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Taux de commission (%)</label>
-                            <input type="number" step="0.01" class="form-control" name="taux_commission" id="editTauxCommission" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" name="descriptions" id="editDescriptions" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                    <button type="button" class="btn btn-primary" onclick="updateOperateur()">Modifier</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="<?= base_url('bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
-    <script>
-        // Créer un opérateur
-        async function createOperateur() {
-            const form = document.getElementById('addOperateurForm');
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData);
-            
-            try {
-                const response = await fetch('<?= base_url('/operator/operateurs/create') ?>', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert('Opérateur créé avec succès');
-                    location.reload();
-                } else {
-                    alert('Erreur: ' + result.message);
-                }
-            } catch (error) {
-                alert('Erreur lors de la création');
-            }
-        }
-
-        // Modifier un opérateur
-        function editOperateur(operateur) {
-            document.getElementById('editId').value = operateur.id;
-            document.getElementById('editNom').value = operateur.nom;
-            document.getElementById('editCode').value = operateur.code;
-            document.getElementById('editEstInterne').value = operateur.est_interne;
-            document.getElementById('editTauxCommission').value = operateur.taux_commission;
-            document.getElementById('editDescriptions').value = operateur.descriptions || '';
-            
-            new bootstrap.Modal(document.getElementById('editOperateurModal')).show();
-        }
-
-        async function updateOperateur() {
-            const form = document.getElementById('editOperateurForm');
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData);
-            
-            try {
-                const response = await fetch('<?= base_url('/operator/operateurs/update') ?>', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert('Opérateur mis à jour avec succès');
-                    location.reload();
-                } else {
-                    alert('Erreur: ' + result.message);
-                }
-            } catch (error) {
-                alert('Erreur lors de la modification');
-            }
-        }
-
-        // Supprimer un opérateur
-        async function deleteOperateur(id) {
-            if (!confirm('Êtes-vous sûr de vouloir supprimer cet opérateur ?')) return;
-            
-            try {
-                const response = await fetch('<?= base_url('/operator/operateurs/delete') ?>', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert('Opérateur supprimé avec succès');
-                    location.reload();
-                } else {
-                    alert('Erreur: ' + result.message);
-                }
-            } catch (error) {
-                alert('Erreur lors de la suppression');
-            }
-        }
-    </script>
+</section>
+<!-- Data Table -->
+<section class="layer-1 rounded-xl shadow-[0px_4px_20px_rgba(0,168,150,0.05)] border border-outline-variant/30 flex flex-col overflow-hidden">
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left border-collapse min-w-[800px]">
+<thead class="bg-surface-container-lowest border-b border-outline-variant/30">
+<tr>
+<th class="py-md px-lg font-label-md text-label-md text-on-surface-variant font-semibold w-24">ID</th>
+<th class="py-md px-lg font-label-md text-label-md text-on-surface-variant font-semibold">Nom</th>
+<th class="py-md px-lg font-label-md text-label-md text-on-surface-variant font-semibold">Code</th>
+<th class="py-md px-lg font-label-md text-label-md text-on-surface-variant font-semibold">Type</th>
+<th class="py-md px-lg font-label-md text-label-md text-on-surface-variant font-semibold text-right">Taux Commission</th>
+<th class="py-md px-lg font-label-md text-label-md text-on-surface-variant font-semibold">Description</th>
+<th class="py-md px-lg font-label-md text-label-md text-on-surface-variant font-semibold text-right w-20">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/20">
+                    <?php foreach($operateurs as $operateur): ?>
+<tr class="hover:bg-surface-container-lowest/60 transition-colors group">
+<td class="py-4 px-lg font-mono-data text-mono-data text-on-surface-variant"><?= $operateur['id'] ?></td>
+<td class="py-4 px-lg font-body-md text-body-md text-on-surface font-semibold"><?= $operateur['nom'] ?></td>
+<td class="py-4 px-lg">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm border border-outline-variant/30">
+<?= $operateur['code'] ?>
+</span>
+</td>
+<td class="py-4 px-lg">
+                            <?php if($operateur['est_interne'] == 1): ?>
+<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-primary-container/10 text-primary font-label-sm text-label-sm border border-primary/20">
+Interne (Nous)
+</span>
+                            <?php else: ?>
+<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-warning-container/20 text-warning font-label-sm text-label-sm border border-warning/30">
+Externe
+</span>
+                            <?php endif; ?>
+</td>
+<td class="py-4 px-lg text-right font-mono-data text-mono-data"><?= number_format($operateur['taux_commission'], 2, ',', ' ') ?>%</td>
+<td class="py-4 px-lg text-on-surface-variant font-body-sm"><?= $operateur['descriptions'] ?? '-' ?></td>
+<td class="py-4 px-lg text-right">
+<div class="flex items-center justify-end gap-sm">
+<button class="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors" onclick="editOperateur(<?= htmlspecialchars(json_encode($operateur)) ?>)">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+                            <?php if($operateur['est_interne'] != 1): ?>
+<button class="p-2 text-error hover:bg-error/10 rounded-lg transition-colors" onclick="deleteOperateur(<?= $operateur['id'] ?>)">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+                            <?php endif; ?>
+</div>
+</td>
+</tr>
+                    <?php endforeach; ?>
+</tbody>
+</table>
+</div>
+</section>
+</main>
+<!-- Modal Ajout Opérateur -->
+<div id="addOperateurModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+<div class="layer-2 rounded-xl max-w-lg w-full mx-4 overflow-hidden">
+<div class="bg-surface-container px-lg py-md border-b border-outline-variant/30 flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-on-surface">Ajouter un Opérateur</h3>
+<button id="closeAddModal" class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-lg">
+<form id="addOperateurForm">
+<div class="mb-md">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Nom de l'opérateur</label>
+<input type="text" name="nom" class="w-full px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" required placeholder="Ex: Orange Money">
+</div>
+<div class="mb-md">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Code</label>
+<input type="text" name="code" class="w-full px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" required placeholder="Ex: TEL, ORA">
+</div>
+<div class="mb-md">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Type</label>
+<select name="est_interne" class="w-full px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" required>
+<option value="0">Externe</option>
+<option value="1">Interne (Nous)</option>
+</select>
+</div>
+<div class="mb-md">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Taux de commission (%)</label>
+<input type="number" step="0.01" name="taux_commission" class="w-full px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" required placeholder="Ex: 5.5">
+</div>
+<div class="mb-md">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Description</label>
+<textarea name="descriptions" rows="3" class="w-full px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none resize-none"></textarea>
+</div>
+</form>
+</div>
+<div class="px-lg py-md bg-surface-container-low border-t border-outline-variant/30 flex justify-end gap-sm">
+<button id="cancelAdd" class="px-lg py-md text-on-surface-variant hover:text-on-surface transition-colors">Annuler</button>
+<button id="submitAdd" class="px-lg py-md bg-primary-container text-on-primary rounded-lg hover:shadow-lg transition-all">Ajouter</button>
+</div>
+</div>
+</div>
+<!-- Modal Modification Opérateur -->
+<div id="editOperateurModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+<div class="layer-2 rounded-xl max-w-lg w-full mx-4 overflow-hidden">
+<div class="bg-surface-container px-lg py-md border-b border-outline-variant/30 flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-on-surface">Modifier l'Opérateur</h3>
+<button id="closeEditModal" class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-lg">
+<form id="editOperateurForm">
+<input type="hidden" name="id" id="editId">
+<div class="mb-md">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Nom de l'opérateur</label>
+<input type="text" name="nom" id="editNom" class="w-full px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" required>
+</div>
+<div class="mb-md">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Code</label>
+<input type="text" name="code" id="editCode" class="w-full px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" required>
+</div>
+<div class="mb-md">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Type</label>
+<select name="est_interne" id="editEstInterne" class="w-full px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" required>
+<option value="0">Externe</option>
+<option value="1">Interne (Nous)</option>
+</select>
+</div>
+<div class="mb-md">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Taux de commission (%)</label>
+<input type="number" step="0.01" name="taux_commission" id="editTauxCommission" class="w-full px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" required>
+</div>
+<div class="mb-md">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Description</label>
+<textarea name="descriptions" id="editDescriptions" rows="3" class="w-full px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none resize-none"></textarea>
+</div>
+</form>
+</div>
+<div class="px-lg py-md bg-surface-container-low border-t border-outline-variant/30 flex justify-end gap-sm">
+<button id="cancelEdit" class="px-lg py-md text-on-surface-variant hover:text-on-surface transition-colors">Annuler</button>
+<button id="submitEdit" class="px-lg py-md bg-primary-container text-on-primary rounded-lg hover:shadow-lg transition-all">Modifier</button>
+</div>
+</div>
+</div>
+<script>
+// Définir les URLs pour le JS
+window.API_URLS = {
+    create: '<?= base_url('/operator/operateurs/create') ?>',
+    update: '<?= base_url('/operator/operateurs/update') ?>',
+    delete: '<?= base_url('/operator/operateurs/delete') ?>'
+};
+</script>
+<script src="<?= base_url('js/operateurs.js') ?>"></script>
 </body>
 </html>

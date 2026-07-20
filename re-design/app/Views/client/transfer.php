@@ -1,394 +1,176 @@
+<?php $currentPage = 'transfert'; ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html class="light" lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transfert</title>
-    <link rel="stylesheet" href="<?= base_url('bootstrap/css/bootstrap.min.css') ?>">
-    <link rel="stylesheet" href="<?= base_url('bootstrap/icons/bootstrap-icons.min.css') ?>">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Transfert - Mobile Money</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Lexend:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="<?= base_url('tailwind/common.js') ?>"></script>
+    <link rel="stylesheet" href="<?= base_url('css/common.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('css/transfer.css') ?>">
 </head>
-<body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="<?= base_url('/') ?>">
-                <i class="bi bi-wallet2"></i> Mobile Money
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= base_url('/client/solde') ?>">
-                            <i class="bi bi-wallet"></i> Solde
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= base_url('/client/depot') ?>">
-                            <i class="bi bi-plus-circle"></i> Dépôt
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= base_url('/client/retrait') ?>">
-                            <i class="bi bi-dash-circle"></i> Retrait
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="<?= base_url('/client/transfert') ?>">
-                            <i class="bi bi-arrow-right-circle"></i> Transfert
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= base_url('/client/historique') ?>">
-                            <i class="bi bi-clock-history"></i> Historique
-                        </a>
-                    </li>
-                </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <span class="nav-link"><?= $numero ?></span>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= base_url('/logout') ?>">
-                            <i class="bi bi-box-arrow-right"></i> Déconnexion
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-white">
-                        <ul class="nav nav-tabs card-header-tabs" id="transferTabs" role="tablist">
-                            <li class="nav-item">
-                                <button class="nav-link active" id="single-tab" data-bs-toggle="tab" data-bs-target="#single" type="button">
-                                    <i class="bi bi-person"></i> Transfert Simple
-                                </button>
-                            </li>
-                            <li class="nav-item">
-                                <button class="nav-link" id="multiple-tab" data-bs-toggle="tab" data-bs-target="#multiple" type="button">
-                                    <i class="bi bi-people"></i> Envoi Multiple
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="card-body">
-                        <div class="alert alert-info mb-4">
-                            <i class="bi bi-wallet"></i> Solde actuel: <strong><?= number_format($solde, 0, ',', ' ') ?> Ar</strong>
-                        </div>
-                        
-                        <div class="tab-content">
-                            <!-- Transfert Simple -->
-                            <div class="tab-pane fade show active" id="single">
-                                <form id="transferForm">
-                                    <div class="mb-3">
-                                        <label for="destinataire" class="form-label">Numéro du destinataire</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text"><i class="bi bi-person"></i></span>
-                                            <input type="text" class="form-control" id="destinataire" placeholder="033..." pattern="\d{10}" required>
-                                        </div>
-                                        <div class="form-text">10 chiffres requis</div>
-                                        <div id="operateurInfo" class="form-text mt-1"></div>
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="montant" class="form-label">Montant à transférer (Ar)</label>
-                                        <div class="input-group input-group-lg">
-                                            <span class="input-group-text">Ar</span>
-                                            <input type="number" class="form-control" id="montant" placeholder="Ex: 50000" min="100" required>
-                                        </div>
-                                        <div class="form-text">Montant minimum: 100 Ar</div>
-                                    </div>
-                                    <div class="mb-3" id="inclureFraisRetraitDiv" style="display: none;">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="inclureFraisRetrait">
-                                            <label class="form-check-label" for="inclureFraisRetrait">
-                                                <i class="bi bi-info-circle"></i> Inclure les frais de retrait anticipés
-                                            </label>
-                                        </div>
-                                        <div class="form-text text-muted">
-                                            Le destinataire pourra retirer l'argent sans frais supplémentaires
-                                        </div>
-                                    </div>
-                                    <div class="alert alert-warning" id="fraisInfo">
-                                        <i class="bi bi-exclamation-triangle"></i> Des frais seront appliqués selon le montant.
-                                    </div>
-                                    <button type="submit" class="btn btn-warning w-100 btn-lg">
-                                        <i class="bi bi-arrow-right-circle"></i> Effectuer le Transfert
-                                    </button>
-                                </form>
-                            </div>
-                            
-                            <!-- Envoi Multiple -->
-                            <div class="tab-pane fade" id="multiple">
-                                <form id="multipleTransferForm">
-                                    <div class="mb-3">
-                                        <label for="montantTotal" class="form-label">Montant total à envoyer (Ar)</label>
-                                        <div class="input-group input-group-lg">
-                                            <span class="input-group-text">Ar</span>
-                                            <input type="number" class="form-control" id="montantTotal" placeholder="Ex: 150000" min="100" required>
-                                        </div>
-                                        <div class="form-text">Ce montant sera divisé équitablement entre tous les destinataires</div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Destinataires</label>
-                                        <div id="destinatairesContainer">
-                                            <div class="input-group mb-2 destinataire-row">
-                                                <span class="input-group-text"><i class="bi bi-person"></i></span>
-                                                <input type="text" class="form-control destinataire-input" placeholder="033..." pattern="\d{10}" required>
-                                                <button type="button" class="btn btn-outline-danger remove-destinataire" style="display: none;">
-                                                    <i class="bi bi-trash"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="addDestinataireBtn">
-                                            <i class="bi bi-plus"></i> Ajouter un destinataire
-                                        </button>
-                                        <div class="form-text mt-2">Minimum 2 destinataires pour l'envoi multiple. Internes et externes acceptés.</div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="inclureFraisRetraitMultiple">
-                                            <label class="form-check-label" for="inclureFraisRetraitMultiple">
-                                                <i class="bi bi-info-circle"></i> Inclure les frais de retrait anticipés pour tous
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="alert alert-info">
-                                        <i class="bi bi-info-circle"></i> L'envoi multiple accepte les destinataires internes et externes. Les commissions seront appliquées pour les transferts externes.
-                                    </div>
-                                    <button type="submit" class="btn btn-warning w-100 btn-lg">
-                                        <i class="bi bi-people"></i> Envoyer à Plusieurs
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Success Modal -->
-    <div class="modal fade" id="successModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">
-                        <i class="bi bi-check-circle"></i> Transfert Réussi
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <div class="mb-3">
-                        <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
-                    </div>
-                    <p id="successMessage" class="fs-5"></p>
-                    <p class="text-muted">Nouveau solde: <strong id="newSolde"></strong></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                    <a href="<?= base_url('/client/solde') ?>" class="btn btn-success">Voir Solde</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="<?= base_url('bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
-    <script>
-        // Détection de l'opérateur du destinataire
-        document.getElementById('destinataire').addEventListener('blur', async function() {
-            const destinataire = this.value;
-            const operateurInfo = document.getElementById('operateurInfo');
-            const inclureFraisRetraitDiv = document.getElementById('inclureFraisRetraitDiv');
-            const fraisInfo = document.getElementById('fraisInfo');
-            
-            if (destinataire.length === 3) {
-                // Récupérer l'opérateur via le préfixe
-                try {
-                    const response = await fetch('<?= base_url('/operator/prefixes/get-operateur') ?>/' + destinataire);
-                    const data = await response.json();
-                    
-                    if (data.operateur) {
-                        if (data.operateur.est_interne == 1) {
-                            operateurInfo.innerHTML = '<span class="badge bg-success">' + data.operateur.nom + ' (Interne)</span>';
-                            inclureFraisRetraitDiv.style.display = 'block';
-                            fraisInfo.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Des frais seront appliqués selon le montant. Optionnel : inclure frais de retrait anticipés.';
-                        } else {
-                            operateurInfo.innerHTML = '<span class="badge bg-warning">' + data.operateur.nom + ' (Externe)</span>';
-                            inclureFraisRetraitDiv.style.display = 'none';
-                            fraisInfo.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Commission supplémentaire de ' + data.operateur.taux_commission + '% sera appliquée.';
-                        }
-                    } else {
-                        operateurInfo.innerHTML = '<span class="badge bg-danger">Préfixe non reconnu</span>';
-                        inclureFraisRetraitDiv.style.display = 'none';
-                    }
-                } catch (error) {
-                    // En cas d'erreur, on suppose que c'est interne par défaut
-                    operateurInfo.innerHTML = '';
-                    inclureFraisRetraitDiv.style.display = 'block';
-                }
-            } else {
-                operateurInfo.innerHTML = '';
-                inclureFraisRetraitDiv.style.display = 'none';
-            }
-        });
-
-        // Transfert simple
-        document.getElementById('transferForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const destinataire = document.getElementById('destinataire').value;
-            const montant = document.getElementById('montant').value;
-            const inclureFraisRetrait = document.getElementById('inclureFraisRetrait').checked;
-            
-            if (!destinataire || !/^\d{10}$/.test(destinataire)) {
-                alert('Le numéro du destinataire doit contenir 10 chiffres');
-                return;
-            }
-
-            if (!montant || montant < 100) {
-                alert('Le montant minimum est de 100 Ar');
-                return;
-            }
-
-            try {
-                const response = await fetch('<?= base_url('/client/transfert/create') ?>', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        destinataire: destinataire,
-                        montant: parseFloat(montant),
-                        inclure_frais_retrait: inclureFraisRetrait
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    let message = data.message;
-                    if (data.commission > 0) {
-                        message += ' (Commission: ' + data.commission.toLocaleString('fr-FR') + ' Ar)';
-                    }
-                    if (data.frais_retrait_anticipé > 0) {
-                        message += ' (Frais retrait anticipé: ' + data.frais_retrait_anticipé.toLocaleString('fr-FR') + ' Ar)';
-                    }
-                    
-                    document.getElementById('successMessage').textContent = message;
-                    document.getElementById('newSolde').textContent = data.nouveau_solde.toLocaleString('fr-FR') + ' Ar';
-                    new bootstrap.Modal(document.getElementById('successModal')).show();
-                    document.getElementById('transferForm').reset();
-                    document.getElementById('operateurInfo').innerHTML = '';
-                    document.getElementById('inclureFraisRetraitDiv').style.display = 'none';
-                } else {
-                    alert('Erreur: ' + data.message);
-                }
-            } catch (error) {
-                alert('Une erreur est survenue. Veuillez réessayer.');
-            }
-        });
-
-        // Gestion des destinataires multiples
-        document.getElementById('addDestinataireBtn').addEventListener('click', function() {
-            const container = document.getElementById('destinatairesContainer');
-            const newRow = document.createElement('div');
-            newRow.className = 'input-group mb-2 destinataire-row';
-            newRow.innerHTML = `
-                <span class="input-group-text"><i class="bi bi-person"></i></span>
-                <input type="text" class="form-control destinataire-input" placeholder="033..." required>
-                <button type="button" class="btn btn-outline-danger remove-destinataire">
-                    <i class="bi bi-trash"></i>
+<body class="bg-background text-on-background min-h-screen pb-[80px] md:pb-0 pt-[64px] md:pt-[80px]">
+<?php include 'navbar.php'; ?>
+<!-- Main Content -->
+<main class="max-w-[1280px] mx-auto px-container-margin py-lg flex flex-col gap-lg">
+<!-- Page Header -->
+<section class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-md">
+<div>
+<h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">Transfert</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Envoyez de l'argent à d'autres utilisateurs.</p>
+</div>
+</section>
+<!-- Balance Card -->
+<section class="layer-1 bg-primary-container/10 border border-primary/20 rounded-xl p-lg shadow-[0px_4px_20px_rgba(0,168,150,0.08)]">
+<div class="flex items-center gap-md">
+<div class="bg-primary/20 p-3 rounded-full flex-shrink-0">
+<span class="material-symbols-outlined text-[32px] text-primary">account_balance_wallet</span>
+</div>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Solde actuel</p>
+<p class="font-headline-md text-headline-md text-primary font-semibold"><?= number_format($solde, 0, ',', ' ') ?> Ar</p>
+</div>
+</div>
+</section>
+<!-- Transfer Form Card -->
+<section class="layer-1 rounded-xl shadow-[0px_4px_20px_rgba(0,168,150,0.05)] border border-outline-variant/30 overflow-hidden">
+<!-- Tabs -->
+<div class="border-b border-outline-variant/30 bg-surface-container-low">
+<div class="flex">
+<button id="singleTab" class="flex-1 px-lg py-md font-label-md text-label-sm text-primary border-b-2 border-primary transition-colors flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">person</span>
+                    Transfert Simple
                 </button>
-            `;
-            container.appendChild(newRow);
-            updateRemoveButtons();
-        });
-
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('.remove-destinataire')) {
-                e.target.closest('.destinataire-row').remove();
-                updateRemoveButtons();
-            }
-        });
-
-        function updateRemoveButtons() {
-            const rows = document.querySelectorAll('.destinataire-row');
-            rows.forEach(row => {
-                const btn = row.querySelector('.remove-destinataire');
-                btn.style.display = rows.length > 1 ? 'block' : 'none';
-            });
-        }
-
-        // Envoi multiple
-        document.getElementById('multipleTransferForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const montantTotal = document.getElementById('montantTotal').value;
-            const inclureFraisRetrait = document.getElementById('inclureFraisRetraitMultiple').checked;
-            
-            const destinataires = [];
-            document.querySelectorAll('.destinataire-input').forEach(input => {
-                if (input.value && /^\d{10}$/.test(input.value)) {
-                    destinataires.push(input.value);
-                }
-            });
-
-            if (destinataires.length < 2) {
-                alert('Minimum 2 destinataires requis pour l\'envoi multiple');
-                return;
-            }
-
-            if (!montantTotal || montantTotal < 100) {
-                alert('Le montant minimum est de 100 Ar');
-                return;
-            }
-
-            try {
-                const response = await fetch('<?= base_url('/client/transfert/createMultiple') ?>', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        montant_total: parseFloat(montantTotal),
-                        destinataires: destinataires,
-                        inclure_frais_retrait: inclureFraisRetrait
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    let message = data.message;
-                    if (data.total_commission > 0) {
-                        message += ' (Commission totale: ' + data.total_commission.toLocaleString('fr-FR') + ' Ar)';
-                    }
-                    if (data.total_frais_retrait > 0) {
-                        message += ' (Frais retrait anticipé: ' + data.total_frais_retrait.toLocaleString('fr-FR') + ' Ar)';
-                    }
-                    
-                    document.getElementById('successMessage').textContent = message;
-                    document.getElementById('newSolde').textContent = data.nouveau_solde.toLocaleString('fr-FR') + ' Ar';
-                    new bootstrap.Modal(document.getElementById('successModal')).show();
-                    document.getElementById('multipleTransferForm').reset();
-                    // Réinitialiser les champs de destinataires
-                    const container = document.getElementById('destinatairesContainer');
-                    container.innerHTML = `
-                        <div class="input-group mb-2 destinataire-row">
-                            <span class="input-group-text"><i class="bi bi-person"></i></span>
-                            <input type="text" class="form-control destinataire-input" placeholder="033..." pattern="\d{10}" required>
-                            <button type="button" class="btn btn-outline-danger remove-destinataire" style="display: none;">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    `;
-                } else {
-                    alert('Erreur: ' + data.message);
-                }
-            } catch (error) {
-                alert('Une erreur est survenue. Veuillez réessayer.');
-            }
-        });
-    </script>
+<button id="multipleTab" class="flex-1 px-lg py-md font-label-md text-label-sm text-on-surface-variant border-b-2 border-transparent hover:text-primary transition-colors flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">groups</span>
+                    Envoi Multiple
+                </button>
+</div>
+</div>
+<!-- Tab Content -->
+<div class="p-lg">
+<!-- Single Transfer -->
+<div id="singleContent">
+<form id="transferForm">
+<div class="mb-md">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Numéro du destinataire</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">person</span>
+<input type="text" id="destinataire" class="w-full px-md py-md pl-10 bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" placeholder="033..." pattern="\d{10}" required>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">10 chiffres requis</p>
+<div id="operateurInfo" class="mt-xs"></div>
+</div>
+<div class="mb-md">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Montant à transférer (Ar)</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">payments</span>
+<input type="number" id="montant" class="w-full px-md py-md pl-10 bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" placeholder="Ex: 50000" min="100" required>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Montant minimum: 100 Ar</p>
+</div>
+<div class="mb-md hidden" id="inclureFraisRetraitDiv">
+<div class="flex items-center gap-sm">
+<input type="checkbox" id="inclureFraisRetrait" class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary">
+<label for="inclureFraisRetrait" class="font-body-md text-body-md text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px] text-primary">info</span>
+<span>Inclure les frais de retrait anticipés</span>
+</label>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs ml-7">Le destinataire pourra retirer l'argent sans frais supplémentaires</p>
+</div>
+<div class="mb-md bg-warning-container/10 border border-warning/30 rounded-lg p-md flex items-start gap-sm">
+<span class="material-symbols-outlined text-warning text-[20px]">warning</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Des frais seront appliqués selon le montant.</p>
+</div>
+<button type="submit" class="w-full px-lg py-md bg-[#ffc107] text-white rounded-lg hover:shadow-lg transition-all font-label-md text-label-md flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">send</span>
+                Effectuer le Transfert
+            </button>
+</form>
+</div>
+<!-- Multiple Transfer -->
+<div id="multipleContent" class="hidden">
+<form id="multipleTransferForm">
+<div class="mb-md">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Montant total à envoyer (Ar)</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">payments</span>
+<input type="number" id="montantTotal" class="w-full px-md py-md pl-10 bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" placeholder="Ex: 150000" min="100" required>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Ce montant sera divisé équitablement entre tous les destinataires</p>
+</div>
+<div class="mb-md">
+<label class="block font-label-md text-label-md text-on-surface mb-sm">Destinataires</label>
+<div id="destinatairesContainer">
+<div class="flex gap-sm mb-sm destinataire-row">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">person</span>
+<input type="text" class="flex-1 px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none destinataire-input" placeholder="033..." pattern="\d{10}" required>
+<button type="button" class="p-2 text-error hover:bg-error/10 rounded-lg transition-colors remove-destinataire hidden">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+<button type="button" id="addDestinataireBtn" class="px-lg py-md border border-outline-variant text-on-surface rounded-lg hover:bg-surface-container-low transition-all font-label-md text-label-sm flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                Ajouter un destinataire
+            </button>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Minimum 2 destinataires pour l'envoi multiple. Internes et externes acceptés.</p>
+</div>
+<div class="mb-md">
+<div class="flex items-center gap-sm">
+<input type="checkbox" id="inclureFraisRetraitMultiple" class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary">
+<label for="inclureFraisRetraitMultiple" class="font-body-md text-body-md text-on-surface flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px] text-primary">info</span>
+<span>Inclure les frais de retrait anticipés pour tous</span>
+</label>
+</div>
+</div>
+<div class="bg-primary-container/10 border border-primary/20 rounded-lg p-md flex items-start gap-sm mb-md">
+<span class="material-symbols-outlined text-primary text-[20px]">info</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">L'envoi multiple accepte les destinataires internes et externes. Les commissions seront appliquées pour les transferts externes.</p>
+</div>
+<button type="submit" class="w-full px-lg py-md bg-[#ffc107] text-white rounded-lg hover:shadow-lg transition-all font-label-md text-label-md flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">groups</span>
+                Envoyer à Plusieurs
+            </button>
+</form>
+</div>
+</div>
+</section>
+</main>
+<!-- Success Modal -->
+<div id="successModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 backdrop-blur-sm">
+<div class="layer-2 rounded-xl max-w-md w-full mx-4 overflow-hidden">
+<div class="bg-primary-container px-lg py-md border-b border-outline-variant/30 flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-on-primary">Transfert Réussi</h3>
+<button id="closeSuccessModal" class="text-on-primary hover:opacity-80 transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-lg text-center">
+<div class="mb-md">
+<span class="material-symbols-outlined text-[64px] text-primary">check_circle</span>
+</div>
+<p id="successMessage" class="font-body-md text-body-md text-on-surface mb-sm"></p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Nouveau solde: <strong id="newSolde" class="text-primary"></strong></p>
+</div>
+<div class="px-lg py-md bg-surface-container-low border-t border-outline-variant/30 flex justify-end gap-sm">
+<button id="closeModalBtn" class="px-lg py-md text-on-surface-variant hover:text-on-surface transition-colors">Fermer</button>
+<a href="<?= base_url('/client/solde') ?>" class="px-lg py-md bg-primary-container text-on-primary rounded-lg hover:shadow-lg transition-all font-label-md text-label-sm">Voir Solde</a>
+</div>
+</div>
+</div>
+<script>
+window.API_URLS = {
+    create: '<?= base_url('/client/transfert/create') ?>',
+    createMultiple: '<?= base_url('/client/transfert/createMultiple') ?>',
+    getOperateur: '<?= base_url('/operator/prefixes/get-operateur') ?>'
+};
+</script>
+<script src="<?= base_url('js/transfer.js') ?>"></script>
 </body>
 </html>

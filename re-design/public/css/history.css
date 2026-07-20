@@ -1,0 +1,6 @@
+/* History Page Styles */
+
+/* Table row hover effect */
+.table-row-hover:hover {
+    background-color: rgba(0, 168, 150, 0.05);
+}

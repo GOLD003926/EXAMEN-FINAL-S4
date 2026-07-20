@@ -51,13 +51,13 @@ class DepositController extends BaseController
 
         $nouveauSolde = $compte['solde'] + $montant;
 
-        // Mise à jour du solde
+        // Mise à jour du solde du compte
         $this->comptesModel->update($compte['id'], [
             'solde'     => $nouveauSolde,
             'update_at' => date('Y-m-d H:i:s'),
         ]);
 
-        // Enregistrement de la transaction (dépôt = pas de frais, gain = 0)
+        // Enregistrement de la transaction (dépôt sans frais, gain nul)
         $this->transactionsModel->insert([
             'id_compte'           => $compte['id'],
             'id_type_operation'   => TypeOperationsModel::TYPE_DEPOT,

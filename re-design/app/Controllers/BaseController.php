@@ -8,21 +8,21 @@ use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * BaseController provides a convenient place for loading components
- * and performing functions that are needed by all your controllers.
+ * BaseController fournit un emplacement pratique pour charger des composants
+ * et effectuer des fonctions nécessaires pour tous les contrôleurs.
  *
- * Extend this class in any new controllers:
+ * Étendez cette classe dans tous les nouveaux contrôleurs:
  * ```
  *     class Home extends BaseController
  * ```
  *
- * For security, be sure to declare any new methods as protected or private.
+ * Pour la sécurité, déclarez toutes les nouvelles méthodes comme protégées ou privées.
  */
 abstract class BaseController extends Controller
 {
     /**
-     * Be sure to declare properties for any property fetch you initialized.
-     * The creation of dynamic property is deprecated in PHP 8.2.
+     * Assurez-vous de déclarer les propriétés pour toute propriété que vous initialisez.
+     * La création de propriétés dynamiques est déconseillée en PHP 8.2.
      */
 
     // protected $session;
@@ -32,14 +32,14 @@ abstract class BaseController extends Controller
      */
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
-        // Load here all helpers you want to be available in your controllers that extend BaseController.
-        // Caution: Do not put the this below the parent::initController() call below.
+        // Chargez ici tous les helpers que vous souhaitez rendre disponibles dans les contrôleurs qui étendent BaseController.
+        // Attention: Ne placez pas le code ci-dessous après l'appel parent::initController().
         // $this->helpers = ['form', 'url'];
 
-        // Caution: Do not edit this line.
+        // Attention: Ne modifiez pas cette ligne.
         parent::initController($request, $response, $logger);
 
-        // Preload any models, libraries, etc, here.
+        // Préchargez ici tous les modèles, bibliothèques, etc.
         // $this->session = service('session');
     }
 }

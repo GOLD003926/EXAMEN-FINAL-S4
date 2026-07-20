@@ -20,7 +20,7 @@ class LoginController extends BaseController
     public function index()
     {
         helper('url');
-        // si session existe, redirection vers la page d'accueil appropriée
+        // Si une session existe, rediriger vers la page d'accueil appropriée
         if (session()->has('user_type')) {
             if (session('user_type') === 'admin') {
                 return redirect()->to('/operator/dashboard');
@@ -68,7 +68,7 @@ class LoginController extends BaseController
                     'numero'    => $numero,
                     'nom'       => null,
                     'prenom'    => null,
-                    'id_etat'   => 1, // état par défaut : Actif
+                    'id_etat'   => 1, // État par défaut : Actif
                     'solde'     => 0,
                     'update_at' => date('Y-m-d H:i:s'),
                 ]);

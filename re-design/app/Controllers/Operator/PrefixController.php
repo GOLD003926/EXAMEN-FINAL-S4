@@ -35,7 +35,7 @@ class PrefixController extends BaseController
     {
         $data = $this->request->getJSON();
         
-        // Validation
+        // Validation des données
         if (!isset($data->codes) || empty($data->codes)) {
             return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Le code du préfixe est requis']);
         }
@@ -100,7 +100,7 @@ class PrefixController extends BaseController
     }
 
     // Méthode pour résoudre l'opérateur depuis un numéro de téléphone
-    // Retourne JSON pour être appelée via AJAX depuis le front
+    // Retourne JSON pour être appelée via AJAX depuis le front-end
     public function getOperateurByNumero($prefixe)
     {
         $prefixeData = $this->prefixeModel->where('codes', $prefixe)->first();
@@ -116,7 +116,7 @@ class PrefixController extends BaseController
     }
 
     // Méthode interne pour résoudre l'opérateur depuis un numéro complet
-    // Utilisée par TransferController (pas une route API)
+    // Utilisée par TransferController (pas une route API publique)
     public function resolveOperateur($numero)
     {
         $prefixe = substr($numero, 0, 3);

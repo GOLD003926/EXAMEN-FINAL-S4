@@ -25,7 +25,7 @@ class GainController extends BaseController
         $dateDebut = $this->request->getGet('date_debut');
         $dateFin   = $this->request->getGet('date_fin');
 
-        // Gains totaux
+        // Calcul des gains totaux
         $totalGain     = $this->transactionsModel->getTotalGain($dateDebut, $dateFin);
         $gainRetrait   = $this->transactionsModel->getGainByType(TypeOperationsModel::TYPE_RETRAIT, $dateDebut, $dateFin);
         
@@ -37,10 +37,10 @@ class GainController extends BaseController
         $operations    = $this->typeOperationsModel->findAll();
         $transactions  = $this->transactionsModel->getTransactionsFiltrees($dateDebut, $dateFin);
         
-        // Montants à envoyer par opérateur
+        // Calcul des montants à envoyer par opérateur
         $montantsParOperateur = $this->transactionsModel->getMontantsParOperateur($dateDebut, $dateFin);
         
-        // Récupérer les détails des opérateurs pour affichage
+        // Récupération des détails des opérateurs pour affichage
         $operateurs = $this->operateursModel->findAll();
         $operateursMap = [];
         foreach ($operateurs as $operateur) {
@@ -69,7 +69,7 @@ class GainController extends BaseController
 
         $totalGain = $this->transactionsModel->getTotalGain($dateDebut, $dateFin);
         
-        // Séparation des gains de transfert
+        // Séparation des gains par type de transfert
         $gainByType = [
             'retrait'           => $this->transactionsModel->getGainByType(TypeOperationsModel::TYPE_RETRAIT, $dateDebut, $dateFin),
             'transfertInterne'  => $this->transactionsModel->getGainByType(TypeOperationsModel::TYPE_TRANSFERT, $dateDebut, $dateFin, 1),

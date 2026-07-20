@@ -9,7 +9,7 @@ class UtilsController extends BaseController
 {
     public function index()
     {
-        //
+        // Méthode vide pour utilités futures
     }
     public function getPrefixes()
     {
