@@ -12,7 +12,7 @@ class PrefixeModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['codes', 'descriptions'];
+    protected $allowedFields    = ['codes', 'descriptions', 'id_operateur'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -44,5 +44,37 @@ class PrefixeModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    
+    /**
+     * Résout l'opérateur associé à un numéro de téléphone via son préfixe
+     */
+    /**
+     * Résout l'opérateur associé à un numéro de téléphone via son préfixe
+     */
+    public function getOperateurByNumero(string $numero): ?array
+    {
+        $prefixes = $this->select('prefixe.*, operateurs.nom as operateur_nom, operateurs.est_interne, operateurs.taux_commission')
+            ->join('operateurs', 'operateurs.id = prefixe.id_operateur')
+            ->findAll();
+
+        foreach ($prefixes as $prefixe) {
+            if (strpos($numero, $prefixe['codes']) === 0) {
+                return $prefixe;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Retourne uniquement les codes de préfixes internes (notre opérateur)
+     */
+    public function getPrefixesInternes(): array
+    {
+        $result = $this->select('prefixe.codes')
+            ->join('operateurs', 'operateurs.id = prefixe.id_operateur')
+            ->where('operateurs.est_interne', 1)
+            ->findAll();
+
+        return array_column($result, 'codes');
+    }
 }

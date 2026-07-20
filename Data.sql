@@ -61,6 +61,10 @@ INSERT INTO comptes (id, numero, nom, prenom, id_etat, solde, update_at) VALUES
 (4, '0371234567', 'Andriamanitra', 'Lucie', 2, 100000, '2024-01-18'),
 (5, '0334567890', 'Rabe', 'Pierre', 1, 1500000, '2024-01-19');
 
+INSERT INTO comptes (id, numero, nom, prenom, id_etat, solde, update_at) VALUES
+(6, '0380000000', 'Rakoto', 'Ketaka', 1, 500000, '2024-01-15'),
+(7, '0340000000', 'Rasoa', 'Ramily', 1, 750000, '2024-01-16');
+
 -- =========================================
 -- Transactions
 -- =========================================
@@ -73,3 +77,51 @@ INSERT INTO transactions (id, id_compte, id_type_operation, numero_source, numer
 
 INSERT INTO users_operateurs (id, username, password, nom, prenom, role) VALUES
 (1, 'admin', 'admin123', 'Admin', 'Principal', 'admin');
+
+-- =========================================
+-- 1. Table operateurs
+-- =========================================
+DROP TABLE IF EXISTS operateurs;
+
+CREATE TABLE operateurs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom TEXT NOT NULL,
+    code TEXT NOT NULL,
+    est_interne INTEGER DEFAULT 0,
+    taux_commission REAL DEFAULT 0,
+    descriptions TEXT
+);
+
+INSERT INTO operateurs (id, nom, code, est_interne, taux_commission, descriptions) VALUES
+(1, 'Yas', 'YAS', 1, 0, 'Notre propre opérateur'),
+(2, 'Orange', 'ORANGE', 0, 2.5, 'Opérateur externe - Orange'),
+(3, 'Airtel', 'AIRTEL', 0, 3, 'Opérateur externe - Airtel');
+
+-- =========================================
+-- 2. Recréation table prefixe (droppée)
+-- =========================================
+DROP TABLE IF EXISTS prefixe;
+
+CREATE TABLE prefixe (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    codes TEXT NOT NULL,
+    descriptions TEXT,
+    id_operateur INTEGER,
+    FOREIGN KEY (id_operateur) REFERENCES operateurs(id)
+);
+
+INSERT INTO prefixe (id, codes, descriptions, id_operateur) VALUES
+(1, '034', 'Yas', 1),
+(2, '038', 'Yas', 1),
+(3, '037', 'Orange', 2),
+(4, '032', 'Orange', 2),
+(5, '033', 'Airtel', 3),
+(6, '031', 'Airtel', 3);
+
+-- =========================================
+-- 3. ALTER TABLE transactions — nouvelles colonnes V2
+-- =========================================
+ALTER TABLE transactions ADD COLUMN id_operateur_destinataire INTEGER REFERENCES operateurs(id);
+ALTER TABLE transactions ADD COLUMN commission REAL DEFAULT 0;
+ALTER TABLE transactions ADD COLUMN inclure_frais_retrait INTEGER DEFAULT 0;
+ALTER TABLE transactions ADD COLUMN batch_id TEXT DEFAULT NULL;
