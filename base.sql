@@ -1,0 +1,52 @@
+CREATE TABLE prefixe (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    codes TEXT,
+    descriptions TEXT
+);
+
+CREATE TABLE type_operations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    codes TEXT,
+    libelle TEXT,
+    description TEXT
+);
+
+CREATE TABLE frais_operations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_type_operation INTEGER,
+    somme_min REAL,
+    somme_max REAL,
+    frais REAL,
+    descriptions TEXT,
+    FOREIGN KEY (id_type_operation) REFERENCES type_operations(id)
+);
+
+CREATE TABLE etat_compte (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    codes TEXT,
+    libelle TEXT,
+    description TEXT
+);
+
+CREATE TABLE comptes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    numero TEXT,
+    nom TEXT,
+    prenom TEXT,
+    id_etat INTEGER,
+    date_update DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_etat) REFERENCES etat_compte(id)
+);
+
+CREATE TABLE transactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_compte INTEGER,
+    datytime DATETIME DEFAULT CURRENT_TIMESTAMP,
+    id_type_operation INTEGER,
+    numero_source TEXT,
+    numero_destinataire TEXT,
+    somme REAL,
+    gain REAL,
+    FOREIGN KEY (id_compte) REFERENCES comptes(id),
+    FOREIGN KEY (id_type_operation) REFERENCES type_operations(id)
+);
