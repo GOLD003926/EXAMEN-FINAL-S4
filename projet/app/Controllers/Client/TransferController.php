@@ -179,7 +179,8 @@ class TransferController extends BaseController
         // Générer un batch_id pour regrouper ces transactions
         $batchId = uniqid('batch_');
 
-        // Vérifier que tous les destinataires sont internes
+        // Valider les destinataires et identifier les opérateurs
+        $destinatairesInfo = [];
         foreach ($destinataires as $destinataire) {
             if (!preg_match('/^\d{10}$/', $destinataire)) {
                 return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Le numéro ' . $destinataire . ' est invalide']);
@@ -189,9 +190,15 @@ class TransferController extends BaseController
             }
 
             $operateur = $this->prefixController->resolveOperateur($destinataire);
-            if (!$operateur || $operateur['est_interne'] != 1) {
-                return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'L\'envoi multiple n\'est disponible que pour les destinataires internes. Le numéro ' . $destinataire . ' est externe']);
+            if (!$operateur) {
+                return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Préfixe du numéro ' . $destinataire . ' non reconnu']);
             }
+
+            $destinatairesInfo[] = [
+                'numero' => $destinataire,
+                'operateur' => $operateur,
+                'est_interne' => ($operateur['est_interne'] == 1)
+            ];
         }
 
         $compteSource = $this->comptesModel->where('numero', $numero)->first();
@@ -203,16 +210,28 @@ class TransferController extends BaseController
         $nombreDestinataires = count($destinataires);
         $montantParDestinataire = $montantTotal / $nombreDestinataires;
 
-        // Calculer les frais totaux
-        $fraisTransfertParDestinataire = $this->fraisOperationsModel->calculerFrais($montantParDestinataire, TypeOperationsModel::TYPE_TRANSFERT);
-        $totalFraisTransfert = $fraisTransfertParDestinataire * $nombreDestinataires;
-        
+        // Calculer les frais totaux et commissions
+        $totalFraisTransfert = 0;
+        $totalCommission = 0;
         $totalFraisRetraitAnticipe = 0;
-        if ($inclureFraisRetrait) {
-            $totalFraisRetraitAnticipe = $fraisTransfertParDestinataire * $nombreDestinataires;
+
+        foreach ($destinatairesInfo as $destInfo) {
+            $fraisTransfert = $this->fraisOperationsModel->calculerFrais($montantParDestinataire, TypeOperationsModel::TYPE_TRANSFERT);
+            $totalFraisTransfert += $fraisTransfert;
+
+            if (!$destInfo['est_interne']) {
+                // Transfert externe : ajouter la commission
+                $commission = $montantParDestinataire * ($destInfo['operateur']['taux_commission'] / 100);
+                $totalCommission += $commission;
+            }
+
+            if ($inclureFraisRetrait && $destInfo['est_interne']) {
+                // Frais de retrait anticipé uniquement pour internes
+                $totalFraisRetraitAnticipe += $fraisTransfert;
+            }
         }
 
-        $totalADebiter = $montantTotal + $totalFraisTransfert + $totalFraisRetraitAnticipe;
+        $totalADebiter = $montantTotal + $totalFraisTransfert + $totalCommission + $totalFraisRetraitAnticipe;
 
         if ($totalADebiter > $soldeActuel) {
             return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Solde insuffisant (Total: ' . number_format($totalADebiter, 0, ',', ' ') . ' Ar)']);
@@ -226,34 +245,63 @@ class TransferController extends BaseController
 
         // Créer les transactions pour chaque destinataire
         $transactionsCrees = [];
-        foreach ($destinataires as $destinataire) {
-            $compteDest = $this->comptesModel->where('numero', $destinataire)->first();
-            if ($compteDest) {
-                // Créditer le destinataire
-                $this->comptesModel->update($compteDest['id'], [
-                    'solde' => $compteDest['solde'] + $montantParDestinataire,
-                    'update_at' => date('Y-m-d H:i:s'),
-                ]);
+        foreach ($destinatairesInfo as $destInfo) {
+            $destinataire = $destInfo['numero'];
+            $estInterne = $destInfo['est_interne'];
+            $operateur = $destInfo['operateur'];
 
-                // Créer la transaction
-                $transactionId = $this->transactionsModel->insert([
-                    'id_compte' => $compteSource['id'],
-                    'id_type_operation' => TypeOperationsModel::TYPE_TRANSFERT,
-                    'numero_source' => $numero,
-                    'numero_destinataire' => $destinataire,
-                    'somme' => $montantParDestinataire,
-                    'gain' => $fraisTransfertParDestinataire,
-                    'batch_id' => $batchId,
-                    'inclure_frais_retrait' => $inclureFraisRetrait ? 1 : 0,
-                    'created_at' => date('Y-m-d H:i:s'),
-                ]);
+            // Calculer les frais pour ce destinataire
+            $fraisTransfert = $this->fraisOperationsModel->calculerFrais($montantParDestinataire, TypeOperationsModel::TYPE_TRANSFERT);
+            $commission = 0;
+            $gain = $fraisTransfert;
 
-                $transactionsCrees[] = [
-                    'id' => $transactionId,
-                    'destinataire' => $destinataire,
-                    'montant' => $montantParDestinataire
-                ];
+            if (!$estInterne) {
+                // Transfert externe : calculer la commission
+                $commission = $montantParDestinataire * ($operateur['taux_commission'] / 100);
+                $gain = $fraisTransfert + $commission;
             }
+
+            $fraisRetraitAnticipe = ($inclureFraisRetrait && $estInterne) ? $fraisTransfert : 0;
+
+            // Créer les données de transaction
+            $transactionData = [
+                'id_compte' => $compteSource['id'],
+                'id_type_operation' => TypeOperationsModel::TYPE_TRANSFERT,
+                'numero_source' => $numero,
+                'numero_destinataire' => $destinataire,
+                'somme' => $montantParDestinataire,
+                'gain' => $gain,
+                'batch_id' => $batchId,
+                'inclure_frais_retrait' => $inclureFraisRetrait ? 1 : 0,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+
+            if (!$estInterne) {
+                // Ajouter les champs spécifiques aux transferts externes
+                $transactionData['id_operateur_destinataire'] = $operateur['id'];
+                $transactionData['commission'] = $commission;
+            }
+
+            $transactionId = $this->transactionsModel->insert($transactionData);
+
+            if ($estInterne) {
+                // Créditer le compte destinataire interne
+                $compteDest = $this->comptesModel->where('numero', $destinataire)->first();
+                if ($compteDest) {
+                    $this->comptesModel->update($compteDest['id'], [
+                        'solde' => $compteDest['solde'] + $montantParDestinataire,
+                        'update_at' => date('Y-m-d H:i:s'),
+                    ]);
+                }
+            }
+
+            $transactionsCrees[] = [
+                'id' => $transactionId,
+                'destinataire' => $destinataire,
+                'montant' => $montantParDestinataire,
+                'est_interne' => $estInterne,
+                'operateur' => $operateur['nom']
+            ];
         }
 
         return $this->response->setJSON([
@@ -263,6 +311,8 @@ class TransferController extends BaseController
             'nombre_destinataires' => $nombreDestinataires,
             'montant_par_destinataire' => $montantParDestinataire,
             'total_frais' => $totalFraisTransfert,
+            'total_commission' => $totalCommission,
+            'total_frais_retrait' => $totalFraisRetraitAnticipe,
             'total_debite' => $totalADebiter,
             'nouveau_solde' => $soldeActuel - $totalADebiter,
             'transactions' => $transactionsCrees

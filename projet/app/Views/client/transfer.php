@@ -134,7 +134,7 @@
                                         <div class="form-text">Ce montant sera divisé équitablement entre tous les destinataires</div>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Destinataires (internes uniquement)</label>
+                                        <label class="form-label">Destinataires</label>
                                         <div id="destinatairesContainer">
                                             <div class="input-group mb-2 destinataire-row">
                                                 <span class="input-group-text"><i class="bi bi-person"></i></span>
@@ -147,7 +147,7 @@
                                         <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="addDestinataireBtn">
                                             <i class="bi bi-plus"></i> Ajouter un destinataire
                                         </button>
-                                        <div class="form-text mt-2">Minimum 2 destinataires pour l'envoi multiple</div>
+                                        <div class="form-text mt-2">Minimum 2 destinataires pour l'envoi multiple. Internes et externes acceptés.</div>
                                     </div>
                                     <div class="mb-3">
                                         <div class="form-check">
@@ -157,8 +157,8 @@
                                             </label>
                                         </div>
                                     </div>
-                                    <div class="alert alert-warning">
-                                        <i class="bi bi-exclamation-triangle"></i> L'envoi multiple n'est disponible que pour les destinataires du même opérateur (interne).
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle"></i> L'envoi multiple accepte les destinataires internes et externes. Les commissions seront appliquées pour les transferts externes.
                                     </div>
                                     <button type="submit" class="btn btn-warning w-100 btn-lg">
                                         <i class="bi bi-people"></i> Envoyer à Plusieurs
@@ -359,7 +359,15 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    document.getElementById('successMessage').textContent = data.message;
+                    let message = data.message;
+                    if (data.total_commission > 0) {
+                        message += ' (Commission totale: ' + data.total_commission.toLocaleString('fr-FR') + ' Ar)';
+                    }
+                    if (data.total_frais_retrait > 0) {
+                        message += ' (Frais retrait anticipé: ' + data.total_frais_retrait.toLocaleString('fr-FR') + ' Ar)';
+                    }
+                    
+                    document.getElementById('successMessage').textContent = message;
                     document.getElementById('newSolde').textContent = data.nouveau_solde.toLocaleString('fr-FR') + ' Ar';
                     new bootstrap.Modal(document.getElementById('successModal')).show();
                     document.getElementById('multipleTransferForm').reset();
