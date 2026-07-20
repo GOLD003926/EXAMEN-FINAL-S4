@@ -8,7 +8,7 @@ CREATE TABLE type_operations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     codes TEXT,
     libelle TEXT,
-    description TEXT
+    descriptions TEXT
 );
 
 CREATE TABLE frais_operations (
@@ -25,7 +25,7 @@ CREATE TABLE etat_compte (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     codes TEXT,
     libelle TEXT,
-    description TEXT
+    descriptions TEXT
 );
 
 CREATE TABLE comptes (
