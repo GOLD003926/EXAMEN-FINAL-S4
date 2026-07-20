@@ -34,19 +34,19 @@ CREATE TABLE comptes (
     nom TEXT,
     prenom TEXT,
     id_etat INTEGER,
-    date_update DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_etat) REFERENCES etat_compte(id)
 );
 
 CREATE TABLE transactions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     id_compte INTEGER,
-    datytime DATETIME DEFAULT CURRENT_TIMESTAMP,
     id_type_operation INTEGER,
     numero_source TEXT,
     numero_destinataire TEXT,
     somme REAL,
     gain REAL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_compte) REFERENCES comptes(id),
     FOREIGN KEY (id_type_operation) REFERENCES type_operations(id)
 );

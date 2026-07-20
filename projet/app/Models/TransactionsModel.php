@@ -4,15 +4,15 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class FraisOperationsModel extends Model
+class TransactionsModel extends Model
 {
-    protected $table            = 'frais_operations';
+    protected $table            = 'transactions';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields = ['id_type_operation', 'somme_min', 'somme_max', 'frais', 'descriptions'];
+    protected $allowedFields    = ['id_compte', 'id_type_operation', 'numero_source', 'numero_destinataire', 'somme', 'gain', 'created_at'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
