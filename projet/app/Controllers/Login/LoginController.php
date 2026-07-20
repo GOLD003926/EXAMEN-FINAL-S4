@@ -4,6 +4,8 @@ namespace App\Controllers\Login;
 
 use App\Controllers\BaseController;
 use CodeIgniter\HTTP\ResponseInterface;
+use App\Models\PrefixeModel;
+use App\Models\ComptesModel;
 
 class LoginController extends BaseController
 {
@@ -44,11 +46,8 @@ class LoginController extends BaseController
         }
 
         // verifier si existe dans la base de données 
-        $utilisateurs = [
-            '0331234567',
-            '0377654321',
-        ];
-        if (!in_array($numero, $utilisateurs)) {
+        $comptes = $this->getAllNumero();
+        if (!in_array($numero, $comptes)) {
             // enregistrer le numero dans la base de données
         }
         // Si tout est ok, on crée la session
@@ -59,9 +58,16 @@ class LoginController extends BaseController
             'redirect_url' => base_url('/')
         ]);
     }
-    function getPrefixes()
-    {
-        // tableau des préfixes
-        return ['033', '037'];
+
+    function getAllNumero() {
+        $model = new ComptesModel();
+        $numeros = $model->findAll();
+        return array_column($numeros, 'numero');
+    }
+
+    function getPrefixes() {
+        $model = new PrefixeModel();
+        $prefixes = $model->findAll();
+        return !empty($prefixes) ? array_column($prefixes, 'codes') : [];
     }
 }
