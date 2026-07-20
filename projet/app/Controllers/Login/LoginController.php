@@ -5,6 +5,8 @@ namespace App\Controllers\Login;
 use App\Controllers\BaseController;
 use App\Services\FakeDataService;
 use CodeIgniter\HTTP\ResponseInterface;
+use App\Models\PrefixeModel;
+use App\Models\ComptesModel;
 
 class LoginController extends BaseController
 {
@@ -108,13 +110,34 @@ class LoginController extends BaseController
             ]);
         }
 
-        return $this->response->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
-            ->setJSON(['message' => 'Type d\'utilisateur invalide.']);
+        if (!$prefixOk) {
+            return $this->response->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
+                ->setJSON(['message' => 'Le numero mobile est invalide (prefixe incorrect).']);
+        }
+
+        // verifier si existe dans la base de données 
+        $comptes = $this->getAllNumero();
+        if (!in_array($numero, $comptes)) {
+            // enregistrer le numero dans la base de données
+        }
+        // Si tout est ok, on crée la session
+        session()->set('numero', $numero);
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Connexion réussie',
+            'redirect_url' => base_url('/')
+        ]);
     }
 
-    function getPrefixes()
-    {
-        // tableau des préfixes
-        return ['033', '037'];
+    function getAllNumero() {
+        $model = new ComptesModel();
+        $numeros = $model->findAll();
+        return array_column($numeros, 'numero');
+    }
+
+    function getPrefixes() {
+        $model = new PrefixeModel();
+        $prefixes = $model->findAll();
+        return !empty($prefixes) ? array_column($prefixes, 'codes') : [];
     }
 }

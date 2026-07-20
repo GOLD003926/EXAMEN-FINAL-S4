@@ -29,7 +29,9 @@ class ComptesModel extends Model
 
     // Validation
     protected $validationRules      = [];
-    protected $validationMessages   = [];
+    protected $validationMessages   = [
+        'numero' => 'required|min_length[10]',
+    ];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 
