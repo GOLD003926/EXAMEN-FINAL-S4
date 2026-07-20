@@ -14,8 +14,13 @@ class UtilsController extends BaseController
     public function getPrefixes()
     {
         $prefixes = [
-            '033',
+            '034',
+            '038',
+            '032',
             '037',
+            '033',
+            '031',
+            '+261'
         ];
 
         return $this->response->setJSON(['prefixes' => $prefixes]);
