@@ -47,9 +47,6 @@ class PrefixeModel extends Model
     /**
      * Résout l'opérateur associé à un numéro de téléphone via son préfixe
      */
-    /**
-     * Résout l'opérateur associé à un numéro de téléphone via son préfixe
-     */
     public function getOperateurByNumero(string $numero): ?array
     {
         $prefixes = $this->select('prefixe.*, operateurs.nom as operateur_nom, operateurs.est_interne, operateurs.taux_commission')

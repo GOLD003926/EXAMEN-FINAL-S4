@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\ComptesModel;
 use App\Models\FraisOperationsModel;
 use App\Models\TransactionsModel;
+use App\Models\TypeOperationsModel;
 
 class WithdrawalController extends BaseController
 {
@@ -53,7 +54,7 @@ class WithdrawalController extends BaseController
             return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Solde insuffisant']);
         }
 
-        $frais = $this->fraisOperationsModel->calculerFrais($montant, 2); // Type 2 = Retrait
+        $frais = $this->fraisOperationsModel->calculerFrais($montant, TypeOperationsModel::TYPE_RETRAIT);
         $total = $montant + $frais;
 
         if ($total > $soldeActuel) {
@@ -71,7 +72,7 @@ class WithdrawalController extends BaseController
         // Enregistrement de la transaction (gain = frais collecté)
         $this->transactionsModel->insert([
             'id_compte'           => $compte['id'],
-            'id_type_operation'   => 2, // Retrait
+            'id_type_operation'   => TypeOperationsModel::TYPE_RETRAIT,
             'numero_source'       => $numero,
             'numero_destinataire' => null,
             'somme'               => $montant,

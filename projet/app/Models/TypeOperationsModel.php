@@ -43,4 +43,27 @@ class TypeOperationsModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    // Constantes pour les types d'opération
+    public const TYPE_DEPOT = 1;
+    public const TYPE_RETRAIT = 2;
+    public const TYPE_TRANSFERT = 3;
+
+    /**
+     * Récupère l'ID d'un type d'opération par son code
+     */
+    public function getIdByCode(string $code): ?int
+    {
+        $operation = $this->where('codes', $code)->first();
+        return $operation ? $operation['id'] : null;
+    }
+
+    /**
+     * Récupère le code d'un type d'opération par son ID
+     */
+    public function getCodeById(int $id): ?string
+    {
+        $operation = $this->find($id);
+        return $operation ? $operation['codes'] : null;
+    }
 }

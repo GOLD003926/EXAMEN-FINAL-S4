@@ -6,20 +6,16 @@ use App\Controllers\BaseController;
 use App\Models\ComptesModel;
 use App\Models\TransactionsModel;
 use App\Models\FraisOperationsModel;
+use App\Models\TypeOperationsModel;
 use App\Controllers\Operator\PrefixController;
 use App\Models\OperateursModel;
-
-// SUPPOSITION: TransactionsModel a les nouveaux champs:
-// - id_operateur_destinataire (FK vers operateurs)
-// - commission (montant de la commission pour transferts externes)
-// - inclure_frais_retrait (booléen pour inclure frais de retrait anticipé)
-// - batch_id (pour regrouper les envois multiples)
 
 class TransferController extends BaseController
 {
     private ComptesModel $comptesModel;
     private TransactionsModel $transactionsModel;
     private FraisOperationsModel $fraisOperationsModel;
+    private TypeOperationsModel $typeOperationsModel;
     private PrefixController $prefixController;
     private OperateursModel $operateursModel;
 
@@ -28,6 +24,7 @@ class TransferController extends BaseController
         $this->comptesModel = new ComptesModel();
         $this->transactionsModel = new TransactionsModel();
         $this->fraisOperationsModel = new FraisOperationsModel();
+        $this->typeOperationsModel = new TypeOperationsModel();
         $this->prefixController = new PrefixController();
         $this->operateursModel = new OperateursModel();
     }
@@ -54,7 +51,7 @@ class TransferController extends BaseController
 
         $montant = floatval($data->montant);
         $destinataire = $data->destinataire;
-        $inclureFraisRetrait = $data->inclure_frais_retrait ?? false; // SUPPOSITION: checkbox envoyée depuis le front
+        $inclureFraisRetrait = $data->inclure_frais_retrait ?? false;
 
         if (!preg_match('/^\d{10}$/', $destinataire)) {
             return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Le numéro du destinataire doit contenir 10 chiffres']);
@@ -88,7 +85,7 @@ class TransferController extends BaseController
         $fraisRetraitAnticipe = 0;
 
         // CALCUL DES FRAIS ET COMMISSIONS
-        $fraisTransfert = $this->fraisOperationsModel->calculerFrais($montant, 3); // Type 3 = Transfert
+        $fraisTransfert = $this->fraisOperationsModel->calculerFrais($montant, TypeOperationsModel::TYPE_TRANSFERT);
         
         if ($estInterne) {
             // TRANSFERT INTERNE
@@ -129,7 +126,7 @@ class TransferController extends BaseController
         // CRÉATION DE LA TRANSACTION
         $transactionData = [
             'id_compte' => $compteSource['id'],
-            'id_type_operation' => 3, // Transfert
+            'id_type_operation' => TypeOperationsModel::TYPE_TRANSFERT,
             'numero_source' => $numero,
             'numero_destinataire' => $destinataire,
             'somme' => $montant,
@@ -207,7 +204,7 @@ class TransferController extends BaseController
         $montantParDestinataire = $montantTotal / $nombreDestinataires;
 
         // Calculer les frais totaux
-        $fraisTransfertParDestinataire = $this->fraisOperationsModel->calculerFrais($montantParDestinataire, 3);
+        $fraisTransfertParDestinataire = $this->fraisOperationsModel->calculerFrais($montantParDestinataire, TypeOperationsModel::TYPE_TRANSFERT);
         $totalFraisTransfert = $fraisTransfertParDestinataire * $nombreDestinataires;
         
         $totalFraisRetraitAnticipe = 0;
@@ -241,7 +238,7 @@ class TransferController extends BaseController
                 // Créer la transaction
                 $transactionId = $this->transactionsModel->insert([
                     'id_compte' => $compteSource['id'],
-                    'id_type_operation' => 3,
+                    'id_type_operation' => TypeOperationsModel::TYPE_TRANSFERT,
                     'numero_source' => $numero,
                     'numero_destinataire' => $destinataire,
                     'somme' => $montantParDestinataire,

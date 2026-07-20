@@ -6,10 +6,6 @@ use App\Controllers\BaseController;
 use App\Models\TransactionsModel;
 use App\Models\TypeOperationsModel;
 
-// SUPPOSITION: TransactionsModel a les nouveaux champs:
-// - commission (montant de la commission pour transferts externes)
-// - batch_id (pour regrouper les envois multiples)
-
 class HistoryController extends BaseController
 {
     private TransactionsModel $transactionsModel;
@@ -34,7 +30,7 @@ class HistoryController extends BaseController
                     break;
                 }
             }
-            // S'assurer que les champs existent (pour compatibilité avec données existantes)
+            // Initialiser les champs par défaut si absents
             if (!isset($transaction['commission'])) {
                 $transaction['commission'] = 0;
             }

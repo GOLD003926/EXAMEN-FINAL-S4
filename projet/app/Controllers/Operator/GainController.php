@@ -7,10 +7,6 @@ use App\Models\TransactionsModel;
 use App\Models\TypeOperationsModel;
 use App\Models\OperateursModel;
 
-// SUPPOSITION: TransactionsModel a les méthodes:
-// - getGainByType($typeId, $dateDebut, $dateFin, $estInterne) : avec filtre interne/externe pour transferts
-// - getMontantsParOperateur($dateDebut, $dateFin) : SUM(montant + commission) groupé par id_operateur_destinataire
-
 class GainController extends BaseController
 {
     private TransactionsModel $transactionsModel;
@@ -31,18 +27,17 @@ class GainController extends BaseController
 
         // Gains totaux
         $totalGain     = $this->transactionsModel->getTotalGain($dateDebut, $dateFin);
-        $gainRetrait   = $this->transactionsModel->getGainByType(2, $dateDebut, $dateFin); // Type 2 = Retrait
+        $gainRetrait   = $this->transactionsModel->getGainByType(TypeOperationsModel::TYPE_RETRAIT, $dateDebut, $dateFin);
         
-        // SUPPOSITION: getGainByType accepte un 4ème paramètre pour filtrer interne/externe (null = tous)
         // Séparation des gains de transfert en interne et externe
-        $gainTransfertInterne   = $this->transactionsModel->getGainByType(3, $dateDebut, $dateFin, 1); // Transferts internes
-        $gainTransfertExterne   = $this->transactionsModel->getGainByType(3, $dateDebut, $dateFin, 0); // Transferts externes
+        $gainTransfertInterne   = $this->transactionsModel->getGainByType(TypeOperationsModel::TYPE_TRANSFERT, $dateDebut, $dateFin, 1);
+        $gainTransfertExterne   = $this->transactionsModel->getGainByType(TypeOperationsModel::TYPE_TRANSFERT, $dateDebut, $dateFin, 0);
         $gainTransfertTotal     = $gainTransfertInterne + $gainTransfertExterne;
         
         $operations    = $this->typeOperationsModel->findAll();
         $transactions  = $this->transactionsModel->getTransactionsFiltrees($dateDebut, $dateFin);
         
-        // SUPPOSITION: getMontantsParOperateur retourne les montants à envoyer par opérateur
+        // Montants à envoyer par opérateur
         $montantsParOperateur = $this->transactionsModel->getMontantsParOperateur($dateDebut, $dateFin);
         
         // Récupérer les détails des opérateurs pour affichage
@@ -76,9 +71,9 @@ class GainController extends BaseController
         
         // Séparation des gains de transfert
         $gainByType = [
-            'retrait'           => $this->transactionsModel->getGainByType(2, $dateDebut, $dateFin),
-            'transfertInterne'  => $this->transactionsModel->getGainByType(3, $dateDebut, $dateFin, 1),
-            'transfertExterne'  => $this->transactionsModel->getGainByType(3, $dateDebut, $dateFin, 0),
+            'retrait'           => $this->transactionsModel->getGainByType(TypeOperationsModel::TYPE_RETRAIT, $dateDebut, $dateFin),
+            'transfertInterne'  => $this->transactionsModel->getGainByType(TypeOperationsModel::TYPE_TRANSFERT, $dateDebut, $dateFin, 1),
+            'transfertExterne'  => $this->transactionsModel->getGainByType(TypeOperationsModel::TYPE_TRANSFERT, $dateDebut, $dateFin, 0),
         ];
 
         return $this->response->setJSON([

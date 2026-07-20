@@ -6,17 +6,12 @@ use App\Controllers\BaseController;
 use App\Models\OperateursModel;
 use CodeIgniter\HTTP\ResponseInterface;
 
-// SUPPOSITION: Le modèle OperateursModel existe déjà avec les champs:
-// - id, nom, code, est_interne, taux_commission, descriptions
-// - Méthodes CRUD de base (findAll, find, insert, update, delete)
-
 class OperateurController extends BaseController
 {
     private $operateursModel;
 
     public function __construct()
     {
-        // SUPPOSITION: OperateursModel est déjà créé et configuré
         $this->operateursModel = new OperateursModel();
     }
 
@@ -44,7 +39,7 @@ class OperateurController extends BaseController
         $operateurData = [
             'nom' => $data->nom,
             'code' => $data->code,
-            'est_interne' => $data->est_interne ?? 0, // 0 par défaut (externe)
+            'est_interne' => $data->est_interne ?? 0,
             'taux_commission' => $data->taux_commission,
             'descriptions' => $data->descriptions ?? null
         ];

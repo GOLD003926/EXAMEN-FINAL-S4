@@ -198,42 +198,39 @@ transaction
 
 ## Base de données & Modèles — {3955}
 
-- [ ] Création table `operateurs` (id, nom, code, est_interne, taux_commission, descriptions)
-- [ ] Ajout colonne `id_operateur` dans `prefixe` (FK vers operateurs)
-- [ ] Ajout colonnes dans `transactions` :
-  - [ ] `id_operateur_destinataire`
-  - [ ] `commission`
-  - [ ] `inclure_frais_retrait`
-  - [ ] `batch_id`
-- [ ] Données initiales : insérer "Nous" (est_interne=1) + 2-3 opérateurs externes avec taux_commission
-- [ ] Mise à jour données `prefixe` existantes (033, 037 → id_operateur = Nous) + ajout 032, 031 (externes)
-- [ ] `OperateursModel` : CRUD de base
-- [ ] `PrefixeModel` : méthode `getOperateurByNumero($numero)` (résout l'opérateur depuis un numéro)
-- [ ] `TransactionsModel` :
-  - [ ] `getGainByType()` : ajouter filtre interne/externe pour les transferts
-  - [ ] `getMontantsParOperateur()` : SUM(montant + commission) groupé par `id_operateur_destinataire`, pour la page "Situation des montants à envoyer"
-  - [ ] `getTransactionsByBatch($batchId)` : pour l'historique des envois multiples
-- [ ] `FraisOperationsModel` : vérifier que `calculerFrais()` reste valable pour transferts internes ET externes (selon confirmation avec le prof sur le point ouvert ci-dessus)
+- [x] Création table `operateurs` (id, nom, code, est_interne, taux_commission, descriptions)
+- [x] Ajout colonne `id_operateur` dans `prefixe` (FK vers operateurs)
+- [x] Ajout colonnes dans `transactions` :
+  - [x] `id_operateur_destinataire`
+  - [x] `commission`
+  - [x] `inclure_frais_retrait`
+  - [x] `batch_id`
+- [x] Données initiales : insérer "Nous" (est_interne=1) + 2-3 opérateurs externes avec taux_commission
+- [x] Mise à jour données `prefixe` existantes (033, 037 → id_operateur = Nous) + ajout 032, 031 (externes)
+- [x] `OperateursModel` : CRUD de base
+- [x] `PrefixeModel` : méthode `getOperateurByNumero($numero)` (résout l'opérateur depuis un numéro)
+- [x] `TransactionsModel` :
+  - [x] `getGainByType()` : ajouter filtre interne/externe pour les transferts
+  - [x] `getMontantsParOperateur()` : SUM(montant + commission) groupé par `id_operateur_destinataire`, pour la page "Situation des montants à envoyer"
+  - [x] `getTransactionsByBatch($batchId)` : pour l'historique des envois multiples
+- [x] `FraisOperationsModel` : vérifier que `calculerFrais()` reste valable pour transferts internes ET externes (selon confirmation avec le prof sur le point ouvert ci-dessus)
 
 ## Contrôleurs & Front — {3926}
 
 ### Opérateur
-- [ ] `OperateurController` (nouveau ou dans un contrôleur existant) : CRUD des opérateurs + configuration taux_commission
-- [ ] `PrefixController` : gérer l'association préfixe ↔ opérateur (interne/externe) dans le formulaire
-- [ ] `GainController` :
-  - [ ] Vue `operator/gain` : séparer gain transfert interne / externe
-  - [ ] Nouvelle section/page "Situation des montants à envoyer par opérateur" (utilise `getMontantsParOperateur()`)
+- [x] `OperateurController` (nouveau ou dans un contrôleur existant) : CRUD des opérateurs + configuration taux_commission
+- [x] `PrefixController` : gérer l'association préfixe ↔ opérateur (interne/externe) dans le formulaire
+- [x] `GainController` :
+  - [x] Vue `operator/gain` : séparer gain transfert interne / externe
+  - [x] Nouvelle section/page "Situation des montants à envoyer par opérateur" (utilise `getMontantsParOperateur()`)
 
 ### Client
-- [ ] `TransferController` :
-  - [ ] Résoudre l'opérateur du destinataire via `PrefixeModel::getOperateurByNumero()`
-  - [ ] Si externe : calculer `commission = montant * taux_commission`, débiter `montant + commission (+ frais barème)`, stocker `commission` et `id_operateur_destinataire`
-  - [ ] Si interne : comportement actuel inchangé + option "inclure frais de retrait" (case à cocher côté front, ajoute le frais de retrait anticipé au débit, stocke `inclure_frais_retrait = 1`)
-  - [ ] Nouvelle route/méthode `createMultiple()` : reçoit montant total + liste de numéros (internes uniquement), divise le montant, boucle sur chaque destinataire avec un `batch_id` commun, valide que tous les numéros sont internes avant de traiter
-- [ ] Vue `client/transfer` :
-  - [ ] Checkbox "Inclure frais de retrait" (visible seulement si destinataire interne)
-  - [ ] Interface envoi multiple (ajout dynamique de numéros, restriction interne uniquement côté validation front)
-- [ ] `HistoryController` : afficher commission séparément du frais si transfert externe, regrouper visuellement les transactions ayant le même `batch_id`
-
-## Point à confirmer avec le prof avant livraison
-- [ ] Le frais de transfert (barème `frais_operations`) s'applique-t-il en plus de la commission sur un transfert externe, ou la commission le remplace entièrement ?
+- [x] `TransferController` :
+  - [x] Résoudre l'opérateur du destinataire via `PrefixeModel::getOperateurByNumero()`
+  - [x] Si externe : calculer `commission = montant * taux_commission`, débiter `montant + commission (+ frais barème)`, stocker `commission` et `id_operateur_destinataire`
+  - [x] Si interne : comportement actuel inchangé + option "inclure frais de retrait" (case à cocher côté front, ajoute le frais de retrait anticipé au débit, stocke `inclure_frais_retrait = 1`)
+  - [x] Nouvelle route/méthode `createMultiple()` : reçoit montant total + liste de numéros (internes uniquement), divise le montant, boucle sur chaque destinataire avec un `batch_id` commun, valide que tous les numéros sont internes avant de traiter
+- [x] Vue `client/transfer` :
+  - [x] Checkbox "Inclure frais de retrait" (visible seulement si destinataire interne)
+  - [x] Interface envoi multiple (ajout dynamique de numéros, restriction interne uniquement côté validation front)
+- [x] `HistoryController` : afficher commission séparément du frais si transfert externe, regrouper visuellement les transactions ayant le même `batch_id`

@@ -5,6 +5,7 @@ namespace App\Controllers\Client;
 use App\Controllers\BaseController;
 use App\Models\ComptesModel;
 use App\Models\TransactionsModel;
+use App\Models\TypeOperationsModel;
 
 class DepositController extends BaseController
 {
@@ -59,7 +60,7 @@ class DepositController extends BaseController
         // Enregistrement de la transaction (dépôt = pas de frais, gain = 0)
         $this->transactionsModel->insert([
             'id_compte'           => $compte['id'],
-            'id_type_operation'   => 1, // Dépôt
+            'id_type_operation'   => TypeOperationsModel::TYPE_DEPOT,
             'numero_source'       => $numero,
             'numero_destinataire' => null,
             'somme'               => $montant,
