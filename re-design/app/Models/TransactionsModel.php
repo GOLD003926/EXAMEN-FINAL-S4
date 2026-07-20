@@ -12,7 +12,19 @@ class TransactionsModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['id_compte', 'id_type_operation', 'numero_source', 'numero_destinataire', 'somme', 'gain', 'created_at'];
+    protected $allowedFields    = [
+        'id_compte',
+        'id_type_operation',
+        'numero_source',
+        'numero_destinataire',
+        'somme',
+        'gain',
+        'commission',
+        'id_operateur_destinataire',
+        'inclure_frais_retrait',
+        'batch_id',
+        'created_at',
+    ];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -71,15 +83,40 @@ class TransactionsModel extends Model
     /**
      * Gain par type d'opération, avec filtre de date optionnel
      */
-    public function getGainByType(int $idTypeOperation, ?string $dateDebut = null, ?string $dateFin = null): float
+    public function getGainByType(int $idTypeOperation, ?string $dateDebut = null, ?string $dateFin = null, ?int $estInterne = null): float
     {
         $builder = $this->builder();
         $builder->selectSum('gain');
         $builder->where('id_type_operation', $idTypeOperation);
+
+        if ($estInterne !== null && $idTypeOperation === 3) {
+            if ($estInterne === 1) {
+                $builder->where('id_operateur_destinataire', null);
+            } else {
+                $builder->where('id_operateur_destinataire IS NOT', null, false);
+            }
+        }
+
         $this->applyDateFilter($builder, $dateDebut, $dateFin);
 
         $result = $builder->get()->getRowArray();
         return (float) ($result['gain'] ?? 0);
+    }
+
+    /**
+     * Montants à envoyer groupés par opérateur destinataire
+     */
+    public function getMontantsParOperateur(?string $dateDebut = null, ?string $dateFin = null): array
+    {
+        $builder = $this->builder();
+        $builder->select('id_operateur_destinataire, SUM(somme) AS montant_total, SUM(COALESCE(commission, 0)) AS commission_total');
+        $builder->where('id_type_operation', 3);
+        $builder->where('id_operateur_destinataire IS NOT', null, false);
+        $this->applyDateFilter($builder, $dateDebut, $dateFin);
+        $builder->groupBy('id_operateur_destinataire');
+        $builder->orderBy('commission_total', 'DESC');
+
+        return $builder->get()->getResultArray();
     }
 
     /**

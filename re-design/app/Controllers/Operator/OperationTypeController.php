@@ -12,7 +12,7 @@ class OperationTypeController extends BaseController
     {
         $model = new TypeOperationsModel();
         $operations = $model->findAll();
-        return view('operator/operationType', ['operations' => $operations]);
+        return view('operator/operations', ['operations' => $operations]);
     }
 
     public function create()

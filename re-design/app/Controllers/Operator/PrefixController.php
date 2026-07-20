@@ -25,7 +25,7 @@ class PrefixController extends BaseController
         
         $operateurs = $this->operateursModel->findAll();
         
-        return view('operator/prefix', [
+        return view('operator/prefixes', [
             'prefixes' => $prefixes,
             'operateurs' => $operateurs
         ]);

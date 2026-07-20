@@ -47,7 +47,7 @@ class GainController extends BaseController
             $operateursMap[$operateur['id']] = $operateur;
         }
 
-        return view('operator/gain', [
+        return view('operator/gains', [
             'totalGain'              => $totalGain,
             'gainRetrait'            => $gainRetrait,
             'gainTransfertInterne'   => $gainTransfertInterne,

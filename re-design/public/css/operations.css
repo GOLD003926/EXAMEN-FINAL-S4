@@ -1,0 +1,33 @@
+/* Operations Page Styles */
+
+.btn-gradient {
+    background: linear-gradient(180deg, #00A896 0%, #008f7f 100%);
+    box-shadow: 0px 4px 10px rgba(0, 168, 150, 0.2);
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-gradient:hover {
+    transform: translateY(-1px);
+    box-shadow: 0px 6px 14px rgba(0, 168, 150, 0.3);
+}
+
+.btn-gradient:active {
+    transform: translateY(1px);
+    box-shadow: 0px 2px 5px rgba(0, 168, 150, 0.2);
+}
+
+/* Modal animation */
+.modal-enter {
+    animation: modalIn 0.2s ease-out;
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
