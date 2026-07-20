@@ -1,0 +1,192 @@
+- [x] Init repo 
+- [x] init projet CI4 
+- [x] config base sqlite3 
+- [x] CONCEPTION {3926} 
+prefixe
+- id
+- code (ex:033,037)
+- descriptions
+type_operations
+- id
+- code (ex:DEP,RET,TRAN)
+- libelle (ex : depot,retrait,transfert)
+- description
+frais_operations
+- id
+- id_type_operation
+- somme_min
+- somme_max
+- frais
+- descriptions
+etat_compte
+- id
+- code (BLQ)
+- libelle (bloquee)
+- description
+ comptes
+- id
+- numero
+- nom
+- prenom
+- id_etat
+- date_update
+transaction
+- id
+- id_compte
+- datytime
+- id_type_operation
+- numero_source
+- numero_destinataire
+- somme
+- gain
+
+- [x] Créations models {3955} 
+	- [x] prefixe 
+	- [x] type_operations 
+	- [x] frais_operations 
+	- [x] etat_compte 
+	- [x] comptes 
+	- [x] transaction 
+- [x] Creation fichier sql {3926} 
+	- [x] base.sql 
+- [x] View Login {3926} 
+- [x] controller login {3926} 
+- [x] route login {3926} 
+- [x] validation login {3926} 
+	- [x] js view 
+	- [x] controller 
+- [x] View dashboard client (Espace client) {3926} 
+
+- [x] Services {3926} 
+	- [x] app/Services/FakeDataService.php {3926} 
+		- [x] Génération de données factices pour les préfixes (033, 037) {3926} 
+		- [x] Types d'opérations (Dépôt, Retrait, Transfert) {3926} 
+		- [x] Grille des frais selon les tranches de montants {3926} 
+		- [x] Données des comptes clients avec soldes {3926} 
+		- [x] Historique des transactions {3926} 
+		- [x] Calcul des gains totaux et par type d'opération {3926} 
+		- [x] Calcul des frais selon le montant et le type d'opération {3926} 
+- [x] Contrôleurs Client {3926} 
+	- [x] app/Controllers/Client/BalanceController.php {3926} 
+		- [x] Affichage du solde du client connecté {3926} 
+		- [x] API pour récupérer le solde en JSON {3926} 
+	- [x] app/Controllers/Client/DepositController.php {3926} 
+		- [x] Formulaire de dépôt {3926} 
+		- [x] Traitement des demandes de dépôt avec validation {3926} 
+	- [x] app/Controllers/Client/WithdrawalController.php {3926} 
+		- [x] Formulaire de retrait {3926} 
+		- [x] Validation du solde suffisant {3926} 
+		- [x] Calcul automatique des frais de retrait {3926} 
+	- [x] app/Controllers/Client/TransferController.php {3926} 
+		- [x] Formulaire de transfert {3926} 
+		- [x] Validation du numéro destinataire (10 chiffres) {3926} 
+		- [x] Vérification que le destinataire n'est pas l'expéditeur {3926} 
+		- [x] Calcul des frais de transfert {3926} 
+	- [x] app/Controllers/Client/HistoryController.php {3926} 
+		- [x] Affichage de l'historique des transactions du client {3926} 
+		- [x] API pour récupérer les transactions en JSON {3926} 
+- [x] Contrôleurs Opérateur {3926} 
+	- [x] app/Controllers/Operator/PrefixController.php {3926} 
+		- [x] Liste des préfixes configurés {3926} 
+		- [x] CRUD pour les préfixes (créer, modifier, supprimer) {3926} 
+	- [x] app/Controllers/Operator/OperationTypeController.php {3926} 
+		- [x] Liste des types d'opérations {3926} 
+		- [x] CRUD pour les types d'opérations {3926} 
+		- [x] Visualisation de la grille des frais par type d'opération {3926} 
+		- [x] Modification des frais {3926} 
+	- [x] app/Controllers/Operator/GainController.php {3926} 
+		- [x] Tableau de bord des gains (total, par type) {3926} 
+		- [x] Liste des transactions génératrices de gains {3926} 
+		- [x] Statistiques des gains {3926} 
+	- [x] app/Controllers/Operator/ClientAccountController.php {3926} 
+		- [x] Liste des comptes clients avec état {3926} 
+		- [x] Détail d'un compte client avec historique {3926} 
+		- [x] Modification de l'état d'un compte (actif/bloqué/suspendu) {3926} 
+- [x] Contrôleurs Système {3926} 
+	- [x] app/Controllers/LogoutController.php {3926} 
+		- [x] Déconnexion et destruction de session {3926} 
+- [x] Vues Client {3926} 
+	- [x] app/Views/client/balance.php {3926} 
+		- [x] Page d'affichage du solde avec design moderne {3926} 
+		- [x] Bouton d'actualisation du solde {3926} 
+	- [x] app/Views/client/deposit.php {3926} 
+		- [x] Formulaire de dépôt avec validation {3926} 
+		- [x] Modal de succès après dépôt {3926} 
+	- [x] app/Views/client/withdrawal.php {3926} 
+		- [x] Formulaire de retrait avec affichage du solde actuel {3926} 
+		- [x] Avertissement sur les frais {3926} 
+		- [x] Modal de succès après retrait {3926} 
+	- [x] app/Views/client/transfer.php {3926} 
+		- [x] Formulaire de transfert avec validation du destinataire {3926} 
+		- [x] Avertissement sur les frais {3926} 
+		- [x] Modal de succès après transfert {3926} 
+	- [x] app/Views/client/history.php {3926} 
+		- [x] Tableau des transactions avec badges colorés par type {3926} 
+		- [x] Filtrage et actualisation des données {3926} 
+- [x] Vues Opérateur {3926} 
+	- [x] app/Views/operator/prefix.php {3926} 
+		- [x] Tableau des préfixes avec actions CRUD {3926} 
+		- [x] Modal d'ajout de préfixe {3926} 
+	- [x] app/Views/operator/operationType.php {3926} 
+		- [x] Tableau des types d'opérations {3926} 
+		- [x] Modal de visualisation de la grille des frais {3926} 
+		- [x] Modal d'ajout de type d'opération {3926} 
+	- [x] app/Views/operator/gain.php {3926} 
+		- [x] Cartes statistiques (gains totaux, retraits, transferts) {3926} 
+		- [x] Tableau des transactions avec gains {3926} 
+	- [x] app/Views/operator/clientAccount.php {3926} 
+		- [x] Tableau des comptes clients avec état {3926} 
+		- [x] Modal de changement d'état de compte {3926} 
+	- [x] app/Views/operator/clientAccountDetail.php {3926} 
+		- [x] Détail complet d'un compte client {3926} 
+		- [x] Historique des transactions du compte {3926} 
+- [x] Fichiers Modifiés {3926} 
+	- [x] app/Views/client/tableauBord.php {3926} 
+		- [x] Transformation en dashboard moderne avec menu dynamique {3926} 
+		- [x] Cartes d'accès rapide aux fonctionnalités {3926} 
+		- [x] Navigation responsive avec Bootstrap {3926} 
+	- [x] app/Config/Routes.php {3926} 
+		- [x] Ajout des routes client {3926} 
+		- [x] Ajout des routes opérateur {3926} 
+		- [x] Ajout de la route de déconnexion {3926} 
+	- [x] app/Views/login/login.php {3926} 
+		- [x] Ajout de checkboxes "Client" et "Admin Opérateur" {3926} 
+		- [x] Champ mot de passe conditionnel {3926} 
+		- [x] Modification du JavaScript {3926} 
+		- [x] Envoi des données au serveur {3926} 
+	- [x] app/Controllers/Login/LoginController.php {3926} 
+		- [x] Ajout de la dépendance FakeDataService {3926} 
+		- [x] Modification de la méthode index() {3926} 
+		- [x] Réécriture complète de la méthode login() {3926} 
+		- [x] Création de sessions différentes selon le type {3926} 
+- [x] Fichiers Créés {3926} 
+	- [x] app/Models/UsersOperateurModel.php {3926} 
+	- [x] app/Controllers/Operator/DashboardController.php {3926} 
+	- [x] app/Views/operator/dashboard.php {3926} 
+- [x] Identifiants de test créés {3926} 
+	- [x] admin / admin123 (Rôle: admin) {3926} 
+	- [x] manager / manager123 (Rôle: manager) {3926} 
+	- [x] supervisor / super123 (Rôle: supervisor) {3926} 
+
+- [x] Base de données (base.sql) {3955} 
+	- [x] Ajout de la table users_operateurs {3955} 
+	- [x] Ajout du champ solde dans comptes {3955} 
+	- [x] Données initiales pour toutes les tables (préfixes, types d'opérations, frais, états, utilisateurs opérateurs, comptes) {3955} 
+- [x] Contrôleurs Opérateur {3955} 
+	- [x] PrefixController → utiliser PrefixeModel {3955} 
+	- [x] OperationTypeController → utiliser TypeOperationsModel et FraisOperationsModel {3955} 
+	- [x] GainController → utiliser TransactionsModel {3955} 
+	- [x] ClientAccountController → utiliser ComptesModel et EtatCompteModel {3955} 
+	- [x] DashboardController → utiliser tous les modèles appropriés {3955} 
+- [x] Contrôleurs Client {3955} 
+	- [x] BalanceController → utiliser ComptesModel {3955} 
+	- [x] DepositController → intégrer TransactionsModel et mise à jour du solde {3955} 
+	- [x] WithdrawalController → intégrer calcul des frais et mise à jour du solde {3955} 
+	- [x] TransferController → intégrer calcul des frais et mise à jour des deux comptes {3955} 
+	- [x] HistoryController → utiliser TransactionsModel {3955} 
+- [x] Contrôleurs Système {3955} 
+	- [x] LoginController → utiliser UsersOperateurModel pour l'auth admin {3955} 
+	- [x] LoginController → utiliser ComptesModel pour les clients {3955} 
+- [x] Modèles {3955} 
+	- [x] Vérifier ComptesModel (ajouter solde dans allowedFields) {3955} 
+	- [x] Vérifier UsersOperateurModel {3955} 
