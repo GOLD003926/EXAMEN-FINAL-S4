@@ -86,6 +86,10 @@
                                         <th>Numéro Destinataire</th>
                                         <th>Montant (Ar)</th>
                                         <th>Gain (Ar)</th>
+                                        <?php if(isset($transaction['commission']) && $transaction['commission'] > 0): ?>
+                                        <th>Commission (Ar)</th>
+                                        <?php endif; ?>
+                                        <th>Détails</th>
                                     </tr>
                                 </thead>
                                 <tbody id="transactionsTable">
@@ -93,17 +97,74 @@
                                     <?php 
                                     $badgeClass = 'bg-secondary';
                                     $icon = 'bi-arrow-left-right';
-                                    if($transaction['operation_codes'] == 'DEP') {
-                                        $badgeClass = 'bg-success';
-                                        $icon = 'bi-plus-circle';
-                                    } elseif($transaction['operation_codes'] == 'RET') {
-                                        $badgeClass = 'bg-danger';
-                                        $icon = 'bi-dash-circle';
-                                    } elseif($transaction['operation_codes'] == 'TRF') {
-                                        $badgeClass = 'bg-warning';
-                                        $icon = 'bi-arrow-right-circle';
+                                    
+                                    if(isset($transaction['type']) && $transaction['type'] == 'multiple') {
+                                        // Envoi multiple groupé
+                                        $badgeClass = 'bg-info';
+                                        $icon = 'bi-people';
+                                    } elseif(isset($transaction['operation_codes'])) {
+                                        if($transaction['operation_codes'] == 'DEP') {
+                                            $badgeClass = 'bg-success';
+                                            $icon = 'bi-plus-circle';
+                                        } elseif($transaction['operation_codes'] == 'RET') {
+                                            $badgeClass = 'bg-danger';
+                                            $icon = 'bi-dash-circle';
+                                        } elseif($transaction['operation_codes'] == 'TRF') {
+                                            $badgeClass = 'bg-warning';
+                                            $icon = 'bi-arrow-right-circle';
+                                        }
                                     }
                                     ?>
+                                    <?php if(isset($transaction['type']) && $transaction['type'] == 'multiple'): ?>
+                                    <!-- Envoi multiple groupé -->
+                                    <tr class="table-light">
+                                        <td>
+                                            <small class="text-muted"><?= $transaction['date'] ?></small>
+                                        </td>
+                                        <td>
+                                            <span class="badge <?= $badgeClass ?>">
+                                                <i class="bi <?= $icon ?>"></i> <?= $transaction['operation_libelle'] ?> (Multiple)
+                                            </span>
+                                        </td>
+                                        <td colspan="3">
+                                            <strong><?= count($transaction['transactions']) ?> destinataires</strong>
+                                            <br>
+                                            <small class="text-muted">Total: <?= number_format($transaction['montant_total'], 0, ',', ' ') ?> Ar</small>
+                                        </td>
+                                        <td><?= number_format($transaction['frais_total'], 0, ',', ' ') ?></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary" onclick="toggleBatch('<?= $transaction['batch_id'] ?>')">
+                                                <i class="bi bi-chevron-down"></i> Voir détails
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <!-- Transactions du batch (cachées par défaut) -->
+                                    <tr id="batch-<?= $transaction['batch_id'] ?>" style="display: none;">
+                                        <td colspan="8">
+                                            <div class="table-responsive bg-light p-2">
+                                                <table class="table table-sm mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Destinataire</th>
+                                                            <th>Montant</th>
+                                                            <th>Frais</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php foreach($transaction['transactions'] as $subTrans): ?>
+                                                        <tr>
+                                                            <td><?= $subTrans['numero_destinataire'] ?></td>
+                                                            <td><?= number_format($subTrans['somme'], 0, ',', ' ') ?></td>
+                                                            <td><?= number_format($subTrans['gain'], 0, ',', ' ') ?></td>
+                                                        </tr>
+                                                        <?php endforeach; ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <?php else: ?>
+                                    <!-- Transaction simple -->
                                     <tr>
                                         <td>
                                             <small class="text-muted"><?= $transaction['created_at'] ?></small>
@@ -112,12 +173,20 @@
                                             <span class="badge <?= $badgeClass ?>">
                                                 <i class="bi <?= $icon ?>"></i> <?= $transaction['operation_libelle'] ?>
                                             </span>
+                                            <?php if(isset($transaction['inclure_frais_retrait']) && $transaction['inclure_frais_retrait'] == 1): ?>
+                                                <span class="badge bg-info ms-1">+ Frais retrait</span>
+                                            <?php endif; ?>
                                         </td>
                                         <td><?= $transaction['numero_source'] ?></td>
                                         <td><?= $transaction['numero_destinataire'] ?? '-' ?></td>
                                         <td><strong><?= number_format($transaction['somme'], 0, ',', ' ') ?></strong></td>
                                         <td><?= $transaction['gain'] > 0 ? number_format($transaction['gain'], 0, ',', ' ') : '-' ?></td>
+                                        <?php if(isset($transaction['commission']) && $transaction['commission'] > 0): ?>
+                                        <td><span class="badge bg-warning"><?= number_format($transaction['commission'], 0, ',', ' ') ?></span></td>
+                                        <?php endif; ?>
+                                        <td>-</td>
                                     </tr>
+                                    <?php endif; ?>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
@@ -131,6 +200,15 @@
 
     <script src="<?= base_url('bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
     <script>
+        function toggleBatch(batchId) {
+            const row = document.getElementById('batch-' + batchId);
+            if (row.style.display === 'none') {
+                row.style.display = 'table-row';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+
         async function refreshHistory() {
             try {
                 const response = await fetch('<?= base_url('/client/historique/get') ?>');
@@ -141,36 +219,87 @@
                     tbody.innerHTML = '';
                     
                     if (data.transactions.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Aucune transaction trouvée.</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="8" class="text-center">Aucune transaction trouvée.</td></tr>';
                         return;
                     }
                     
                     data.transactions.forEach(transaction => {
                         let badgeClass = 'bg-secondary';
                         let icon = 'bi-arrow-left-right';
+                        let rowHtml = '';
                         
-                        if (transaction.operation_codes === 'DEP') {
-                            badgeClass = 'bg-success';
-                            icon = 'bi-plus-circle';
-                        } else if (transaction.operation_codes === 'RET') {
-                            badgeClass = 'bg-danger';
-                            icon = 'bi-dash-circle';
-                        } else if (transaction.operation_codes === 'TRF') {
-                            badgeClass = 'bg-warning';
-                            icon = 'bi-arrow-right-circle';
+                        if (transaction.type === 'multiple') {
+                            // Envoi multiple groupé
+                            badgeClass = 'bg-info';
+                            icon = 'bi-people';
+                            
+                            rowHtml = `
+                                <tr class="table-light">
+                                    <td><small class="text-muted">${transaction.date}</small></td>
+                                    <td><span class="badge ${badgeClass}"><i class="bi ${icon}"></i> ${transaction.operation_libelle} (Multiple)</span></td>
+                                    <td colspan="3"><strong>${transaction.transactions.length} destinataires</strong><br><small class="text-muted">Total: ${transaction.montant_total.toLocaleString('fr-FR')} Ar</small></td>
+                                    <td>${transaction.frais_total.toLocaleString('fr-FR')}</td>
+                                    <td><button class="btn btn-sm btn-outline-primary" onclick="toggleBatch('${transaction.batch_id}')"><i class="bi bi-chevron-down"></i> Voir détails</button></td>
+                                </tr>
+                                <tr id="batch-${transaction.batch_id}" style="display: none;">
+                                    <td colspan="8">
+                                        <div class="table-responsive bg-light p-2">
+                                            <table class="table table-sm mb-0">
+                                                <thead><tr><th>Destinataire</th><th>Montant</th><th>Frais</th></tr></thead>
+                                                <tbody>
+                                                    ${transaction.transactions.map(sub => `
+                                                        <tr>
+                                                            <td>${sub.numero_destinataire}</td>
+                                                            <td>${sub.somme.toLocaleString('fr-FR')}</td>
+                                                            <td>${sub.gain.toLocaleString('fr-FR')}</td>
+                                                        </tr>
+                                                    `).join('')}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                        } else {
+                            // Transaction simple
+                            if (transaction.operation_codes === 'DEP') {
+                                badgeClass = 'bg-success';
+                                icon = 'bi-plus-circle';
+                            } else if (transaction.operation_codes === 'RET') {
+                                badgeClass = 'bg-danger';
+                                icon = 'bi-dash-circle';
+                            } else if (transaction.operation_codes === 'TRF') {
+                                badgeClass = 'bg-warning';
+                                icon = 'bi-arrow-right-circle';
+                            }
+                            
+                            let commissionHtml = '';
+                            if (transaction.commission > 0) {
+                                commissionHtml = `<td><span class="badge bg-warning">${transaction.commission.toLocaleString('fr-FR')}</span></td>`;
+                            } else {
+                                commissionHtml = '<td></td>';
+                            }
+                            
+                            let fraisRetraitBadge = '';
+                            if (transaction.inclure_frais_retrait == 1) {
+                                fraisRetraitBadge = '<span class="badge bg-info ms-1">+ Frais retrait</span>';
+                            }
+                            
+                            rowHtml = `
+                                <tr>
+                                    <td><small class="text-muted">${transaction.created_at}</small></td>
+                                    <td><span class="badge ${badgeClass}"><i class="bi ${icon}"></i> ${transaction.operation_libelle}</span>${fraisRetraitBadge}</td>
+                                    <td>${transaction.numero_source}</td>
+                                    <td>${transaction.numero_destinataire || '-'}</td>
+                                    <td><strong>${transaction.somme.toLocaleString('fr-FR')}</strong></td>
+                                    <td>${transaction.gain > 0 ? transaction.gain.toLocaleString('fr-FR') : '-'}</td>
+                                    ${commissionHtml}
+                                    <td>-</td>
+                                </tr>
+                            `;
                         }
                         
-                        const row = `
-                            <tr>
-                                <td><small class="text-muted">${transaction.created_at}</small></td>
-                                <td><span class="badge ${badgeClass}"><i class="bi ${icon}"></i> ${transaction.operation_libelle}</span></td>
-                                <td>${transaction.numero_source}</td>
-                                <td>${transaction.numero_destinataire || '-'}</td>
-                                <td><strong>${transaction.somme.toLocaleString('fr-FR')}</strong></td>
-                                <td>${transaction.gain > 0 ? transaction.gain.toLocaleString('fr-FR') : '-'}</td>
-                            </tr>
-                        `;
-                        tbody.innerHTML += row;
+                        tbody.innerHTML += rowHtml;
                     });
                 }
             } catch (error) {
