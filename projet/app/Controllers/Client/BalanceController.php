@@ -3,21 +3,21 @@
 namespace App\Controllers\Client;
 
 use App\Controllers\BaseController;
-use App\Services\FakeDataService;
+use App\Models\ComptesModel;
 
 class BalanceController extends BaseController
 {
-    private $fakeDataService;
+    private $comptesModel;
 
     public function __construct()
     {
-        $this->fakeDataService = new FakeDataService();
+        $this->comptesModel = new ComptesModel();
     }
 
     public function index()
     {
         $numero = session('numero');
-        $solde = $this->fakeDataService->getSolde($numero);
+        $solde = $this->comptesModel->getSolde($numero);
         
         return view('client/balance', [
             'numero' => $numero,
@@ -28,7 +28,7 @@ class BalanceController extends BaseController
     public function getBalance()
     {
         $numero = session('numero');
-        $solde = $this->fakeDataService->getSolde($numero);
+        $solde = $this->comptesModel->getSolde($numero);
         
         return $this->response->setJSON([
             'success' => true,

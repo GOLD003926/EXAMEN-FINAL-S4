@@ -3,24 +3,25 @@
 namespace App\Controllers\Client;
 
 use App\Controllers\BaseController;
-use App\Services\FakeDataService;
+use App\Models\TransactionsModel;
+use App\Models\TypeOperationsModel;
 
 class HistoryController extends BaseController
 {
-    private $fakeDataService;
+    private TransactionsModel $transactionsModel;
+    private TypeOperationsModel $typeOperationsModel;
 
     public function __construct()
     {
-        $this->fakeDataService = new FakeDataService();
+        $this->transactionsModel = new TransactionsModel();
+        $this->typeOperationsModel = new TypeOperationsModel();
     }
 
-    public function index()
+    private function getTransactionsAvecLibelle($numero): array
     {
-        $numero = session('numero');
-        $transactions = $this->fakeDataService->getTransactions($numero);
-        $operations = $this->fakeDataService->getTypeOperations();
-        
-        // Add operation label to each transaction
+        $transactions = $this->transactionsModel->getTransactionsByNumero($numero);
+        $operations = $this->typeOperationsModel->findAll();
+
         foreach ($transactions as &$transaction) {
             foreach ($operations as $operation) {
                 if ($transaction['id_type_operation'] == $operation['id']) {
@@ -30,31 +31,22 @@ class HistoryController extends BaseController
                 }
             }
         }
+        return $transactions;
+    }
 
-        return view('client/history', [
-            'numero' => $numero,
-            'transactions' => array_values($transactions)
-        ]);
+    public function index()
+    {
+        $numero = session('numero');
+        $transactions = $this->getTransactionsAvecLibelle($numero);
+
+        return view('client/history', ['numero' => $numero, 'transactions' => array_values($transactions)]);
     }
 
     public function getTransactions()
     {
         $numero = session('numero');
-        $transactions = $this->fakeDataService->getTransactions($numero);
-        $operations = $this->fakeDataService->getTypeOperations();
-        
-        foreach ($transactions as &$transaction) {
-            foreach ($operations as $operation) {
-                if ($transaction['id_type_operation'] == $operation['id']) {
-                    $transaction['operation_libelle'] = $operation['libelle'];
-                    break;
-                }
-            }
-        }
+        $transactions = $this->getTransactionsAvecLibelle($numero);
 
-        return $this->response->setJSON([
-            'success' => true,
-            'transactions' => array_values($transactions)
-        ]);
+        return $this->response->setJSON(['success' => true, 'transactions' => array_values($transactions)]);
     }
 }

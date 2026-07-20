@@ -3,22 +3,28 @@
 namespace App\Controllers\Client;
 
 use App\Controllers\BaseController;
-use App\Services\FakeDataService;
+use App\Models\ComptesModel;
+use App\Models\FraisOperationsModel;
+use App\Models\TransactionsModel;
 
 class WithdrawalController extends BaseController
 {
-    private $fakeDataService;
+    private $comptesModel;
+    private $fraisOperationsModel;
+    private $transactionsModel;
 
     public function __construct()
     {
-        $this->fakeDataService = new FakeDataService();
+        $this->comptesModel = new ComptesModel();
+        $this->fraisOperationsModel = new FraisOperationsModel();
+        $this->transactionsModel = new TransactionsModel();
     }
 
     public function index()
     {
         $numero = session('numero');
-        $solde = $this->fakeDataService->getSolde($numero);
-        
+        $solde = $this->comptesModel->getSolde($numero);
+
         return view('client/withdrawal', [
             'numero' => $numero,
             'solde' => $solde
@@ -27,37 +33,58 @@ class WithdrawalController extends BaseController
 
     public function create()
     {
-        $data = $this->request->getJSON();
+        $data   = $this->request->getJSON();
         $numero = session('numero');
-        
-        // Validation
+
         if (!isset($data->montant) || !is_numeric($data->montant) || $data->montant <= 0) {
             return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Le montant doit être un nombre positif']);
         }
 
         $montant = floatval($data->montant);
-        $soldeActuel = $this->fakeDataService->getSolde($numero);
-        
-        // Check if sufficient balance
+        $compte  = $this->comptesModel->where('numero', $numero)->first();
+
+        if (!$compte) {
+            return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'Compte non trouvé']);
+        }
+
+        $soldeActuel = $compte['solde'];
+
         if ($montant > $soldeActuel) {
             return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Solde insuffisant']);
         }
 
-        // Calculate fee
-        $frais = $this->fakeDataService->calculateFee($montant, 2); // Type 2 = Retrait
+        $frais = $this->fraisOperationsModel->calculerFrais($montant, 2); // Type 2 = Retrait
         $total = $montant + $frais;
-        
+
         if ($total > $soldeActuel) {
             return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Solde insuffisant (incluant les frais de ' . $frais . ' Ar)']);
         }
 
-        // In a real application, we would process the withdrawal
+        $nouveauSolde = $soldeActuel - $total;
+
+        // Mise à jour du solde
+        $this->comptesModel->update($compte['id'], [
+            'solde'     => $nouveauSolde,
+            'update_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        // Enregistrement de la transaction (gain = frais collecté)
+        $this->transactionsModel->insert([
+            'id_compte'           => $compte['id'],
+            'id_type_operation'   => 2, // Retrait
+            'numero_source'       => $numero,
+            'numero_destinataire' => null,
+            'somme'               => $montant,
+            'gain'                => $frais,
+            'created_at'          => date('Y-m-d H:i:s'),
+        ]);
+
         return $this->response->setJSON([
-            'success' => true,
-            'message' => 'Retrait de ' . number_format($montant, 0, ',', ' ') . ' Ar effectué avec succès (Frais: ' . $frais . ' Ar)',
-            'montant' => $montant,
-            'frais' => $frais,
-            'nouveau_solde' => $soldeActuel - $total
+            'success'       => true,
+            'message'       => 'Retrait de ' . number_format($montant, 0, ',', ' ') . ' Ar effectué avec succès (Frais: ' . $frais . ' Ar)',
+            'montant'       => $montant,
+            'frais'         => $frais,
+            'nouveau_solde' => $nouveauSolde
         ]);
     }
 }

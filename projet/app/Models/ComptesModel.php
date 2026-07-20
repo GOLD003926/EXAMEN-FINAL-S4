@@ -91,4 +91,30 @@ class ComptesModel extends Model
         $result = $this->selectSum('solde')->get()->getRowArray();
         return (float) ($result['solde'] ?? 0);
     }
+
+    /**
+     * Récupère tous les comptes
+     */
+    public function getComptes()
+    {
+        return $this->findAll();
+    }
+
+    /**
+     * Récupère le solde d'un compte par numéro
+     */
+
+    public function getSolde($numero)
+    {
+        $compte = $this->where('numero', $numero)->first();
+        return $compte['solde'] ?? 0;
+    }
+
+    /**
+     * Met à jour le solde d'un compte par numéro
+     */
+    public function updateSolde($numero, $nouveauSolde)
+    {
+        $this->where('numero', $numero)->set('solde', $nouveauSolde)->update();
+    }
 }

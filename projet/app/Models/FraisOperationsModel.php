@@ -43,4 +43,18 @@ class FraisOperationsModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    // Calculate fee based on amount and operation type
+    public function calculerFrais($amount, $typeOperationId)
+    {
+        $frais = $this->findAll();
+        foreach ($frais as $fra) {
+            if ($fra['id_type_operation'] == $typeOperationId && 
+                $amount >= $fra['somme_min'] && 
+                $amount <= $fra['somme_max']) {
+                return $fra['frais'];
+            }
+        }
+        return 0;
+    }
 }

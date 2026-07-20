@@ -10,7 +10,7 @@ use App\Models\ComptesModel;
 
 class LoginController extends BaseController
 {
-     private UsersOperateurModel $usersOperateurModel;
+    private UsersOperateurModel $usersOperateurModel;
 
     public function __construct()
     {
@@ -39,15 +39,12 @@ class LoginController extends BaseController
         $password = $data->password ?? null;
         $userType = $data->userType ?? 'client';
 
-        // Validation selon le type d'utilisateur
         if ($userType === 'client') {
-            // Vérification du numéro
             if (!$numero || !preg_match('/^\d{10}$/', $numero)) {
                 return $this->response->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
                     ->setJSON(['message' => 'Le numero mobile doit contenir exactement 10 chiffres.']);
             }
 
-            // Vérification du préfixe
             $prefixes = $this->getPrefixes();
             $prefixOk = false;
             foreach ($prefixes as $prefix) {
@@ -62,27 +59,37 @@ class LoginController extends BaseController
                     ->setJSON(['message' => 'Le numero mobile est invalide (prefixe incorrect).']);
             }
 
-            // vérifier si existe dans la base de données
-            $comptes = $this->getAllNumero();
-            if (!in_array($numero, $comptes)) {
-                // enregistrer le numero dans la base de données
+            // Création automatique du compte si le numéro n'existe pas encore
+            $comptesModel = new ComptesModel();
+            $compte = $comptesModel->where('numero', $numero)->first();
+
+            if (!$compte) {
+                $comptesModel->insert([
+                    'numero'    => $numero,
+                    'nom'       => null,
+                    'prenom'    => null,
+                    'id_etat'   => 1, // état par défaut : Actif
+                    'solde'     => 0,
+                    'update_at' => date('Y-m-d H:i:s'),
+                ]);
             }
-            // Si tout est ok, on crée la session
+
+            // Bug corrigé : user_type manquant, cassait la redirection sur index()
             session()->set('numero', $numero);
+            session()->set('user_type', 'client');
+
             return $this->response->setJSON([
                 'success' => true,
                 'message' => 'Connexion réussie',
                 'redirect_url' => base_url('/')
             ]);
-
+            
         } elseif ($userType === 'admin') {
-            // Validation pour admin
             if (!$numero || !$password) {
                 return $this->response->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
                     ->setJSON(['message' => 'Identifiant et mot de passe requis.']);
             }
 
-            // Validation contre les utilisateurs opérateur (via UsersOperateurModel)
             $user = $this->usersOperateurModel->validateLogin($numero, $password);
 
             if (!$user) {
@@ -90,7 +97,6 @@ class LoginController extends BaseController
                     ->setJSON(['message' => 'Identifiant ou mot de passe incorrect.']);
             }
 
-            // Créer la session admin
             session()->set('admin_id', $user['id']);
             session()->set('admin_username', $user['username']);
             session()->set('admin_nom', $user['nom']);
