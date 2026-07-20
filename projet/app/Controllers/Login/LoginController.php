@@ -80,6 +80,7 @@ class LoginController extends BaseController
                 'redirect_url' => base_url('/')
             ]);
 
+
         } elseif ($userType === 'admin') {
             // Validation pour admin
             if (!$numero || !$password) {
@@ -108,11 +109,6 @@ class LoginController extends BaseController
                 'message' => 'Connexion admin réussie',
                 'redirect_url' => base_url('/operator/dashboard')
             ]);
-        }
-
-        if (!$prefixOk) {
-            return $this->response->setStatusCode(ResponseInterface::HTTP_BAD_REQUEST)
-                ->setJSON(['message' => 'Le numero mobile est invalide (prefixe incorrect).']);
         }
 
         // verifier si existe dans la base de données 
