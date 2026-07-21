@@ -21,6 +21,19 @@ CREATE TABLE frais_operations (
     descriptions TEXT,
     FOREIGN KEY (id_type_operation) REFERENCES type_operations(id)
 );
+-- epargne
+-- - table necessaire {
+-- 	epargne { id , id_compte , taux , valeurs_actuele}
+-- }
+CREATE TABLE epargne (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id_compte INTEGER,
+    taux REAL,
+    valeur_actuelle REAL,
+    FOREIGN KEY (id_compte) REFERENCES comptes(id)
+);
+--- fin epargne
+
 
 CREATE TABLE etat_compte (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

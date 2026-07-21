@@ -239,4 +239,17 @@ transaction
 ALEA : 3955
 
 	-[ok] creation table : promotion(id,libelle,valeur,description)
-	-[] Modification du fonction calculer frais pour transfert calculerFrais($amount, $typeOperationId) 
+	-[ok] Modification du fonction calculer frais pour transfert calculerFrais($amount, $typeOperationId) 
+
+
+ALEA : 3926
+  - Notion d'epargne 
+  - pour chaque transfert
+  - page personnalisation % epargne
+
+- [x] table necessaire {
+	epargne { id , id_compte , taux , valeurs_actuele}
+}
+- [x] models
+- [x] base create table 
+- view pages ...

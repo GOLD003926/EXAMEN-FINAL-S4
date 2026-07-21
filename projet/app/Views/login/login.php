@@ -40,7 +40,7 @@
                         <label class="font-label-md text-on-surface-variant block ml-1" for="phone">Numéro de Mobile</label>
                         <div class="relative group">
 
-                            <input class="w-full px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" id="phone" placeholder="037 00 000 00" type="text">
+                            <input value="0381234567" class="w-full px-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" id="phone" placeholder="037 00 000 00" type="text">
                         </div>
                         <p class="text-error text-sm mt-1 hidden" id="phone-error"></p>
                     </div>
@@ -56,7 +56,7 @@
                         <label class="font-label-md text-on-surface-variant block ml-1" for="email">Email Professionnel</label>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant">mail</span>
-                            <input class="w-full pl-12 pr-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" id="email" placeholder="nom@m-flow.pro" type="email">
+                            <input class="w-full pl-12 pr-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" id="email" placeholder="nom@m-flow.pro" type="email" value="a@a.com">
                         </div>
                         <p class="text-error text-sm mt-1 hidden" id="email-error"></p>
                     </div>
@@ -66,7 +66,7 @@
                         </div>
                         <div class="relative">
                             <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant">lock</span>
-                            <input class="w-full pl-12 pr-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" id="password" placeholder="••••••••" type="password">
+                            <input class="w-full pl-12 pr-md py-md bg-surface-container-low border border-transparent focus:border-primary focus:bg-white focus:ring-0 rounded-xl font-body-md transition-all outline-none" id="password" placeholder="••••••••" type="password" value="admin123">
                         </div>
                         <p class="text-error text-sm mt-1 hidden" id="password-error"></p>
                     </div>
