@@ -60,7 +60,7 @@ class TransferController extends BaseController
             return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Vous ne pouvez pas transférer à votre propre numéro']);
         }
 
-        // Récupérer les comptes
+        // Récupérer les comptes source et destinataire
         $compteSource = $this->comptesModel->where('numero', $numero)->first();
         $compteDest   = $this->comptesModel->where('numero', $destinataire)->first();
 
@@ -73,7 +73,7 @@ class TransferController extends BaseController
 
         $soldeActuel = $compteSource['solde'];
 
-        // RÉSOLUTION DE L'OPÉRATEUR DU DESTINATAIRE
+        // Détermination de l'opérateur du destinataire
         $operateurDestinataire = $this->prefixController->resolveOperateur($destinataire);
         
         if (!$operateurDestinataire) {
@@ -84,38 +84,38 @@ class TransferController extends BaseController
         $commission = 0;
         $fraisRetraitAnticipe = 0;
 
-        // CALCUL DES FRAIS ET COMMISSIONS
+        // Calcul des frais et commissions
         $fraisTransfert = $this->fraisOperationsModel->calculerFrais($montant, TypeOperationsModel::TYPE_TRANSFERT);
         
         if ($estInterne) {
-            // TRANSFERT INTERNE
+            // Transfert interne
             if ($inclureFraisRetrait) {
-                // Ajouter les frais de retrait anticipé (même montant que frais de transfert)
+                // Ajouter les frais de retrait anticipé (même montant que les frais de transfert)
                 $fraisRetraitAnticipe = $fraisTransfert;
             }
             $totalADebiter = $montant + $fraisTransfert + $fraisRetraitAnticipe;
-            $gain = $fraisTransfert; // Gain = frais de transfert
+            $gain = $fraisTransfert; // Le gain correspond aux frais de transfert
         } else {
-            // TRANSFERT EXTERNE
+            // Transfert externe
             // Calculer la commission selon le taux de l'opérateur externe
             $commission = $montant * ($operateurDestinataire['taux_commission'] / 100);
             $totalADebiter = $montant + $fraisTransfert + $commission;
-            $gain = $fraisTransfert + $commission; // Gain = frais + commission
+            $gain = $fraisTransfert + $commission; // Le gain correspond aux frais plus la commission
         }
 
-        // Vérification du solde
+        // Vérification du solde disponible
         if ($totalADebiter > $soldeActuel) {
             return $this->response->setStatusCode(400)->setJSON(['success' => false, 'message' => 'Solde insuffisant (Total: ' . number_format($totalADebiter, 0, ',', ' ') . ' Ar)']);
         }
 
-        // MISE À JOUR DES COMPTES
+        // Mise à jour des comptes
         $this->comptesModel->update($compteSource['id'], [
             'solde' => $soldeActuel - $totalADebiter,
             'update_at' => date('Y-m-d H:i:s'),
         ]);
         
         // Pour les transferts internes, le destinataire reçoit le montant
-        // Pour les transferts externes, on ne met pas à jour le solde du destinataire (sera géré par l'autre opérateur)
+        // Pour les transferts externes, le solde du destinataire n'est pas mis à jour (sera géré par l'autre opérateur)
         if ($estInterne) {
             $this->comptesModel->update($compteDest['id'], [
                 'solde' => $compteDest['solde'] + $montant,
@@ -123,7 +123,7 @@ class TransferController extends BaseController
             ]);
         }
 
-        // CRÉATION DE LA TRANSACTION
+        // Création de la transaction
         $transactionData = [
             'id_compte' => $compteSource['id'],
             'id_type_operation' => TypeOperationsModel::TYPE_TRANSFERT,
@@ -134,7 +134,7 @@ class TransferController extends BaseController
             'created_at' => date('Y-m-d H:i:s'),
         ];
 
-        // Ajouter les champs spécifiques Version 2
+        // Ajouter les champs spécifiques pour la version 2
         if (!$estInterne) {
             $transactionData['id_operateur_destinataire'] = $operateurDestinataire['id'];
             $transactionData['commission'] = $commission;
@@ -159,7 +159,7 @@ class TransferController extends BaseController
         ]);
     }
 
-    // ENVOI MULTIPLE (uniquement pour destinataires internes)
+    // Envoi multiple (destinataires internes et externes acceptés)
     public function createMultiple()
     {
         $data = $this->request->getJSON();
@@ -176,7 +176,7 @@ class TransferController extends BaseController
         $destinataires = $data->destinataires;
         $inclureFraisRetrait = $data->inclure_frais_retrait ?? false;
 
-        // Générer un batch_id pour regrouper ces transactions
+        // Générer un identifiant de batch pour regrouper ces transactions
         $batchId = uniqid('batch_');
 
         // Valider les destinataires et identifier les opérateurs
@@ -226,7 +226,7 @@ class TransferController extends BaseController
             }
 
             if ($inclureFraisRetrait && $destInfo['est_interne']) {
-                // Frais de retrait anticipé uniquement pour internes
+                // Frais de retrait anticipé uniquement pour les destinataires internes
                 $totalFraisRetraitAnticipe += $fraisTransfert;
             }
         }

@@ -25,7 +25,7 @@ class DashboardController extends BaseController
 
     public function index()
     {
-        // Check if user is logged in as admin
+        // Vérifier si l'utilisateur est connecté en tant qu'administrateur
         if (!session()->has('user_type') || session('user_type') !== 'admin') {
             return redirect()->to('/');
         }

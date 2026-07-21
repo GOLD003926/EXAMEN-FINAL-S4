@@ -20,20 +20,20 @@ class FraisOperationsModel extends Model
     protected array $casts = [];
     protected array $castHandlers = [];
 
-    // Dates
+    // Configuration des dates
     protected $useTimestamps = false;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at';
 
-    // Validation
+    // Configuration de la validation
     protected $validationRules      = [];
     protected $validationMessages   = [];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 
-    // Callbacks
+    // Configuration des callbacks
     protected $allowCallbacks = true;
     protected $beforeInsert   = [];
     protected $afterInsert    = [];
@@ -44,7 +44,7 @@ class FraisOperationsModel extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    // Calculate fee based on amount and operation type
+    // Calculer les frais en fonction du montant et du type d'opération
     public function calculerFrais($amount, $typeOperationId)
     {
         $frais = $this->findAll();

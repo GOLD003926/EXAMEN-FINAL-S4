@@ -25,7 +25,7 @@ class ClientAccountController extends BaseController
         $comptes = $this->comptesModel->getComptesWithEtat();
         $etats   = $this->etatCompteModel->findAll();
 
-        return view('operator/clientAccount', [
+        return view('operator/comptes', [
             'comptes' => $comptes,
             'etats'   => $etats,
         ]);
@@ -41,7 +41,7 @@ class ClientAccountController extends BaseController
 
         $transactions = $this->transactionsModel->getTransactionsByNumero($numero);
 
-        return view('operator/clientAccountDetail', [
+        return view('operator/comptesDetail', [
             'compte'       => $compte,
             'transactions' => $transactions,
         ]);

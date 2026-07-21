@@ -63,13 +63,13 @@ class WithdrawalController extends BaseController
 
         $nouveauSolde = $soldeActuel - $total;
 
-        // Mise à jour du solde
+        // Mise à jour du solde du compte
         $this->comptesModel->update($compte['id'], [
             'solde'     => $nouveauSolde,
             'update_at' => date('Y-m-d H:i:s'),
         ]);
 
-        // Enregistrement de la transaction (gain = frais collecté)
+        // Enregistrement de la transaction (le gain correspond aux frais collectés)
         $this->transactionsModel->insert([
             'id_compte'           => $compte['id'],
             'id_type_operation'   => TypeOperationsModel::TYPE_RETRAIT,

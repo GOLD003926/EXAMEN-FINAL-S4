@@ -76,7 +76,7 @@ class HistoryController extends BaseController
             }
         }
 
-        // Fusionner les singles et les grouped, triés par date décroissante
+        // Fusionner les transactions simples et groupées, triées par date décroissante
         $all = array_merge($grouped, $singles);
         usort($all, function($a, $b) {
             $dateA = isset($a['date']) ? $a['date'] : (isset($a['created_at']) ? $a['created_at'] : '');

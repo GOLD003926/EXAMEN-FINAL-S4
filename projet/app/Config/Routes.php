@@ -12,6 +12,7 @@ $routes->post('/login', 'Login\LoginController::login');
 $routes->get('/logout', 'LogoutController::index');
 
 // Client routes
+$routes->get('/client', 'Client\DashboardController::index');
 $routes->get('/client/solde', 'Client\BalanceController::index');
 $routes->get('/client/solde/get', 'Client\BalanceController::getBalance');
 $routes->get('/client/depot', 'Client\DepositController::index');
@@ -36,7 +37,9 @@ $routes->post('/operator/operations/create', 'Operator\OperationTypeController::
 $routes->post('/operator/operations/update', 'Operator\OperationTypeController::update');
 $routes->post('/operator/operations/delete', 'Operator\OperationTypeController::delete');
 $routes->get('/operator/operations/fees/(:num)', 'Operator\OperationTypeController::getFees/$1');
-$routes->post('/operator/operations/fee/update', 'Operator\OperationTypeController::updateFee');
+$routes->post('/operator/operations/createFee', 'Operator\OperationTypeController::createFee');
+$routes->post('/operator/operations/updateFee', 'Operator\OperationTypeController::updateFee');
+$routes->post('/operator/operations/deleteFee', 'Operator\OperationTypeController::deleteFee');
 $routes->get('/operator/gains', 'Operator\GainController::index');
 $routes->get('/operator/gains/stats', 'Operator\GainController::getGainStats');
 $routes->get('/operator/comptes', 'Operator\ClientAccountController::index');

@@ -9,14 +9,16 @@ class UtilsController extends BaseController
 {
     public function index()
     {
-        //
+        // Méthode vide pour utilités futures
     }
     public function getPrefixes()
     {
         $prefixes = [
+            '02022',
+            '032',
             '033',
-            '037',
             '034',
+            '037',
             '038'
         ];
 
