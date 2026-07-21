@@ -68,6 +68,9 @@ INSERT INTO comptes (id, numero, nom, prenom, id_etat, solde, update_at) VALUES
 
 INSERT INTO comptes (id, numero, nom, prenom, id_etat, solde, update_at) VALUES
 (8, '0341111111', 'Be', 'Boss', 1, 100000, '2024-01-16');
+
+INSERT INTO comptes (id, numero, nom, prenom, id_etat, solde, update_at) VALUES
+(9, '0381234567', 'Be', 'Bema', 1, 500, '2024-01-16');
 -- =========================================
 -- Transactions
 -- =========================================
@@ -128,3 +131,6 @@ ALTER TABLE transactions ADD COLUMN id_operateur_destinataire INTEGER REFERENCES
 ALTER TABLE transactions ADD COLUMN commission REAL DEFAULT 0;
 ALTER TABLE transactions ADD COLUMN inclure_frais_retrait INTEGER DEFAULT 0;
 ALTER TABLE transactions ADD COLUMN batch_id TEXT DEFAULT NULL;
+
+INSERT INTO promotion (libelle,valeur,descriptions) VALUES
+('promotion',12,'promotion pour le frais de transfert pour le meme operateur');

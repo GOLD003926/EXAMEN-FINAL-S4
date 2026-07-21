@@ -9,6 +9,8 @@ use App\Models\FraisOperationsModel;
 use App\Models\TypeOperationsModel;
 use App\Controllers\Operator\PrefixController;
 use App\Models\OperateursModel;
+use App\Models\PromotionModel;
+use DeepCopy\Matcher\PropertyMatcher;
 
 class TransferController extends BaseController
 {
@@ -18,6 +20,7 @@ class TransferController extends BaseController
     private TypeOperationsModel $typeOperationsModel;
     private PrefixController $prefixController;
     private OperateursModel $operateursModel;
+    private PromotionModel $promotionModel;
 
     public function __construct()
     {
@@ -27,6 +30,7 @@ class TransferController extends BaseController
         $this->typeOperationsModel = new TypeOperationsModel();
         $this->prefixController = new PrefixController();
         $this->operateursModel = new OperateursModel();
+        $this->promotionModel = new PromotionModel();
     }
 
     public function index()
@@ -86,9 +90,14 @@ class TransferController extends BaseController
 
         // Calcul des frais et commissions
         $fraisTransfert = $this->fraisOperationsModel->calculerFrais($montant, TypeOperationsModel::TYPE_TRANSFERT);
+
+        /* (frais * pourcentage) / 100 */
         
         if ($estInterne) {
             // Transfert interne
+            $pourcentage = $this->promotionModel->getValeur();
+            $promotion = ($fraisTransfert * $pourcentage) / 100;
+            $fraisTransfert = $fraisTransfert - $promotion;
             if ($inclureFraisRetrait) {
                 // Ajouter les frais de retrait anticipé (même montant que les frais de transfert)
                 $fraisRetraitAnticipe = $fraisTransfert;

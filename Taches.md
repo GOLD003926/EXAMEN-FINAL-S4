@@ -234,3 +234,9 @@ transaction
   - [x] Checkbox "Inclure frais de retrait" (visible seulement si destinataire interne)
   - [x] Interface envoi multiple (ajout dynamique de numéros, restriction interne uniquement côté validation front)
 - [x] `HistoryController` : afficher commission séparément du frais si transfert externe, regrouper visuellement les transactions ayant le même `batch_id`
+
+
+ALEA : 3955
+
+	-[ok] creation table : promotion(id,libelle,valeur,description)
+	-[] Modification du fonction calculer frais pour transfert calculerFrais($amount, $typeOperationId) 

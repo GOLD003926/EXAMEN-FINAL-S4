@@ -60,3 +60,10 @@ CREATE TABLE users_operateurs (
     prenom TEXT,
     role TEXT
 );
+
+CREATE TABLE promotion(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    libelle TEXT,
+    valeur REAL,
+    descriptions TEXT
+);
